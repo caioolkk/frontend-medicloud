@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Medi CLOUD</title>
+    <!-- Ícones e Fonte -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .logo { margin-bottom: 30px; }
+        .logo i { font-size: 40px; color: #2563eb; }
+        .logo h2 { color: #1e293b; margin-top: 10px; }
+        .logo span { color: #2563eb; }
+        
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #64748b; font-size: 0.9rem; }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .form-group input:focus { border-color: #2563eb; }
+        
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: #1d4ed8; }
+        
+        .error-msg { color: #ef4444; font-size: 0.85rem; margin-bottom: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="logo">
+            <i class="fa-solid fa-cloud"></i>
+            <h2>Medi <span>CLOUD</span></h2>
+        </div>
+
+        <p class="error-msg" id="erro">Email ou senha incorretos!</p>
+
+        <form id="formLogin" onsubmit="fazerLogin(event)">
+            <div class="form-group">
+                <label>Email Profissional</label>
+                <input type="email" id="email" placeholder="seu.email@medicloud.br" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="senha" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-login">Entrar no Sistema</button>
+        </form>
+    </div>
+
+    <script>
+        // --- DADOS MOCKADOS (MOCK DATA) ---
+        const USUARIOS_PERMITIDOS = [
+            { email: "caio.medicloud@medicloud.br", nome: "Caio Macário", cargo: "Admin" },
+            { email: "fernando.medicloud@medicloud.br", nome: "Fernando", cargo: "Médico" },
+            { email: "clara.medicloud@medicloud.br", nome: "Clara", cargo: "Enfermeira" },
+            { email: "camylle.medicloud@medicloud.br", nome: "Camylle", cargo: "Recepcionista" },
+            { email: "andre.medicloud@medicloud.br", nome: "André", cargo: "Médico" },
+            { email: "alan.medicloud@medicloud.br", nome: "Alan", cargo: "Médico" }
+        ];
+
+        const SENHA_CORRETA = "medicloud@123";
+
+        function fazerLogin(event) {
+            event.preventDefault();
+            
+            const emailDigitado = document.getElementById("email").value;
+            const senhaDigitada = document.getElementById("senha").value;
+            const msgErro = document.getElementById("erro");
+
+            // Verifica se o email existe na lista e se a senha bate
+            const usuario = USUARIOS_PERMITIDOS.find(u => u.email === emailDigitado);
+
+            if (usuario && senhaDigitada === SENHA_CORRETA) {
+                // Sucesso! Salva no navegador
+                localStorage.setItem("usuario", JSON.stringify(usuario));
+                localStorage.setItem("token", "mock-token-seguro-123");
+                
+                // Redireciona para o dashboard
+                window.location.href = "dashboard.html";
+            } else {
+                // Erro
+                msgErro.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

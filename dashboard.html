@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel | Medi Cloud</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; }
+
+        /* CABEÇALHO */
+        .cabecalho-principal {
+            background-color: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .linha-superior { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .logo-texto { font-size: 1.5rem; font-weight: 800; }
+        .medi { color: #2563eb; }
+        .cloud { color: #3b82f6; font-weight: 400; }
+
+        .area-perfil { cursor: pointer; position: relative; }
+        .icone-perfil {
+            width: 45px; height: 45px; background-color: #f0f4ff;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: #2563eb; font-size: 1.2rem;
+        }
+        .menu-usuario-dropdown {
+            display: none; position: absolute; top: 55px; right: 0;
+            background: white; border: 1px solid #e0e0e0; border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); flex-direction: column;
+            padding: 10px; width: 180px; z-index: 1000;
+        }
+        .nome-usuario {
+            font-weight: bold; margin-bottom: 10px; padding-bottom: 8px;
+            border-bottom: 1px solid #eee; text-align: center;
+        }
+        .botao-sair {
+            background: none; border: none; color: #ef4444;
+            cursor: pointer; font-weight: 600; padding: 5px 0;
+        }
+
+        /* NAVEGAÇÃO */
+        .navegacao-links {
+            display: flex; justify-content: center; gap: 40px;
+            padding-bottom: 5px; border-bottom: 1px solid #eee;
+        }
+        .link-nav {
+            text-decoration: none; color: #64748b; font-weight: 500;
+            display: flex; align-items: center; gap: 8px; padding: 10px 15px;
+            border-radius: 8px; transition: all 0.3s; cursor: pointer;
+        }
+        .link-nav:hover { color: #2563eb; background-color: #f0f4ff; }
+
+        /* DROPDOWN MENU - COM DELAY */
+        .dropdown-cadastro { position: relative; }
+        .dropdown-conteudo {
+            display: none; position: absolute; top: 100%; left: 0;
+            background: white; border: 1px solid #e0e0e0; border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 250px;
+            z-index: 1000; margin-top: 5px;
+        }
+        .dropdown-conteudo.mostrar { display: block; }
+
+        .dropdown-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 15px; color: #333; text-decoration: none;
+            transition: all 0.2s; border-bottom: 1px solid #f0f0f0;
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover {
+            background-color: #f0f4ff; color: #2563eb; padding-left: 20px;
+        }
+        .dropdown-item i { width: 20px; text-align: center; }
+
+        /* CONTEÚDO CENTRAL */
+        .conteudo-central {
+            display: flex; justify-content: center; align-items: center;
+            padding-top: 40px;
+        }
+        .cartao-central {
+            background: white; width: 90%; max-width: 800px; height: 350px;
+            border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-grande-container { text-align: center; }
+        .nuvem-icone { position: relative; display: inline-block; margin-bottom: 10px; }
+        .nuvem-icone i { font-size: 5rem; color: #2563eb; }
+        .mais-sobreposto {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -40%); color: white;
+            font-size: 2.5rem; font-weight: bold;
+        }
+        .titulo-logo-grande { font-size: 2.5rem; }
+    </style>
+</head>
+<body>
+    <header class="cabecalho-principal">
+        <div class="linha-superior">
+            <div class="logo-texto">
+                <span class="medi">Medi</span> <span class="cloud">CLOUD</span>
+            </div>
+            <div class="area-perfil" onclick="alternarMenuUsuario(event)">
+                <div class="icone-perfil"><i class="fa-solid fa-user"></i></div>
+                <div class="menu-usuario-dropdown" id="menuUsuario">
+                    <p class="nome-usuario" id="nomeUsuarioDisplay">Usuário</p>
+                    <button class="botao-sair" onclick="sairDoSistema()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navegacao-links">
+            <!-- DROPDOWN CADASTRO (apenas Pacientes) -->
+            <div class="dropdown-cadastro" id="dropdownCadastro">
+                <a href="#" class="link-nav" id="btnCadastro">
+                    <i class="fa-solid fa-user-plus"></i> Cadastro
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; margin-left: 5px;"></i>
+                </a>
+                <div class="dropdown-conteudo" id="menuCadastro">
+                    <a href="cadastro.html" class="dropdown-item">
+                        <i class="fa-solid fa-procedures"></i>
+                        <span>Pacientes</span>
+                    </a>
+                </div>
+            </div>
+
+            <a href="documento.html" class="link-nav">
+                <i class="fa-regular fa-file"></i> Documento
+            </a>
+            <a href="leitos.html" class="link-nav">
+                <i class="fa-solid fa-bed"></i> Leitos
+            </a>
+        </nav>
+    </header>
+
+    <main class="conteudo-central">
+        <div class="cartao-central">
+            <div class="logo-grande-container">
+                <div class="nuvem-icone">
+                    <i class="fa-solid fa-cloud"></i>
+                    <span class="mais-sobreposto">+</span>
+                </div>
+                <h1 class="titulo-logo-grande">
+                    <span class="medi">Medi</span> <span class="cloud">CLOUD</span>
+                </h1>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ================= MENU USUÁRIO =================
+        function alternarMenuUsuario(e) {
+            e?.stopPropagation();
+            const menu = document.getElementById("menuUsuario");
+            menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+            const nomeSalvo = localStorage.getItem("nomeUsuario");
+            if(nomeSalvo) document.getElementById("nomeUsuarioDisplay").innerText = nomeSalvo;
+        }
+
+        function sairDoSistema() {
+            localStorage.removeItem("token");
+            localStorage.removeItem("usuario");
+            window.location.href = "index.html";
+        }
+
+        // ================= DROPDOWN CADASTRO COM DELAY =================
+        let timeoutAbrir, timeoutFechar;
+        const DELAY_ABERTURA = 200;  // 200ms para abrir (evita bug)
+        const DELAY_FECHAMENTO = 150; // 150ms para fechar (suave)
+
+        const dropdown = document.getElementById("dropdownCadastro");
+        const menuCadastro = document.getElementById("menuCadastro");
+
+        // Ao entrar no botão "Cadastro"
+        dropdown.addEventListener("mouseenter", () => {
+            clearTimeout(timeoutFechar); // Cancela fechamento pendente
+            timeoutAbrir = setTimeout(() => {
+                menuCadastro.classList.add("mostrar");
+            }, DELAY_ABERTURA);
+        });
+
+        // Ao sair do botão "Cadastro"
+        dropdown.addEventListener("mouseleave", () => {
+            clearTimeout(timeoutAbrir); // Cancela abertura pendente
+            timeoutFechar = setTimeout(() => {
+                menuCadastro.classList.remove("mostrar");
+            }, DELAY_FECHAMENTO);
+        });
+
+        // Ao entrar no menu dropdown (mantém aberto)
+        menuCadastro.addEventListener("mouseenter", () => {
+            clearTimeout(timeoutFechar);
+        });
+
+        // Ao sair do menu dropdown (fecha com delay)
+        menuCadastro.addEventListener("mouseleave", () => {
+            timeoutFechar = setTimeout(() => {
+                menuCadastro.classList.remove("mostrar");
+            }, DELAY_FECHAMENTO);
+        });
+
+        // Fechar ao clicar fora
+        window.addEventListener("click", (e) => {
+            if (!dropdown.contains(e.target)) {
+                menuCadastro.classList.remove("mostrar");
+            }
+            // Fecha menu usuário se clicar fora
+            if (!e.target.closest('.area-perfil')) {
+                const menuUsuario = document.getElementById("menuUsuario");
+                if (menuUsuario.style.display === "flex") {
+                    menuUsuario.style.display = "none";
+                }
+            }
+        });
+
+        // Impede que clique no link feche o dropdown antes de navegar
+        document.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener("click", () => {
+                menuCadastro.classList.remove("mostrar");
+            });
+        });
+    </script>
+</body>
+</html>
