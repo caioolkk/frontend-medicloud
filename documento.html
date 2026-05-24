@@ -615,216 +615,595 @@
     </div>
 
     <script>
-        // ============ CONFIG ============
-        const API_BASE = 'https://medicloud-backend-wy7s.onrender.com';
+        const API = "http://localhost:10000/api";
+        // produção:
+        // const API = "https://medicloud-backend-wy7s.onrender.com/api";
 
-        // ============ FUNÇÕES GLOBAIS ============
+        const TOKEN = localStorage.getItem("token");
 
-        function abrirFormulario() {
-            console.log('🔘 Abrindo modal...');
-            const modal = document.querySelector('.modal') ||
-                document.getElementById('modalNovoDocumento') ||
-                document.querySelector('[id*="modal"]');
-            if (modal) {
-                modal.style.display = 'flex';
-                carregarPacientesNoSelect();
-            } else {
-                console.error('❌ Modal não encontrado');
+        const MODULOS = {
+            prontuarios: {
+                nome: "Prontuários",
+                icone: "fa-file-medical",
+                desc: "Registros clínicos completos",
+                endpoint: "/documentos",
+                tipoDocumento: "Prontuário",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"],
+                form: [
+                    { id: "pacienteId", label: "Paciente", type: "select-pacientes", required: true },
+                    { id: "conteudo", label: "Conteúdo", type: "textarea", full: true, required: true },
+                    { id: "status", label: "Status", type: "select", options: ["Ativo", "Pendente", "Arquivado"] }
+                ]
+            },
+
+            exames: {
+                nome: "Exames",
+                icone: "fa-microscope",
+                desc: "Resultados laboratoriais",
+                endpoint: "/documentos",
+                tipoDocumento: "Exame",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"],
+                form: [
+                    { id: "pacienteId", label: "Paciente", type: "select-pacientes", required: true },
+                    { id: "conteudo", label: "Resultado do exame", type: "textarea", full: true, required: true },
+                    { id: "status", label: "Status", type: "select", options: ["Ativo", "Pendente", "Arquivado"] }
+                ]
+            },
+
+            prescricoes: {
+                nome: "Prescrições",
+                icone: "fa-pills",
+                desc: "Receitas médicas",
+                endpoint: "/documentos",
+                tipoDocumento: "Receita",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"],
+                form: [
+                    { id: "pacienteId", label: "Paciente", type: "select-pacientes", required: true },
+                    { id: "conteudo", label: "Receita", type: "textarea", full: true, required: true },
+                    { id: "status", label: "Status", type: "select", options: ["Ativo", "Pendente", "Arquivado"] }
+                ]
             }
-        }
+        };
 
-        function fecharModal() {
-            const modal = document.querySelector('.modal') ||
-                document.getElementById('modalNovoDocumento');
-            if (modal) {
-                modal.style.display = 'none';
-                const form = document.querySelector('form');
-                if (form) form.reset();
-            }
-        }
+        let moduloAtual = "prontuarios";
+        let dadosBackend = [];
+        let dadosFiltrados = [];
+        let pacientes = [];
+        let editandoId = null;
 
-        function filtrarDados() {
-            console.log('🔍 Filtrando...');
-            aplicarFiltros();
-        }
+        window.onload = async () => {
 
-        // ============ CARREGAR PACIENTES ============
-        async function carregarPacientesNoSelect() {
+            await carregarPacientes();
+
+            renderizarSidebar();
+
+            carregarModulo(moduloAtual);
+        };
+
+        async function carregarPacientes() {
+
             try {
-                const res = await fetch(`${API_BASE}/api/pacientes`);
-                const { data, success } = await res.json();
-                const select = document.querySelector('select[name="pacienteId"]');
 
-                if (select && success && data) {
-                    select.innerHTML = '<option value="">Selecione um paciente</option>' +
-                        data.map(p => `<option value="${p._id}">${p.nome}</option>`).join('');
+                const response = await fetch(`${API}/pacientes`);
+
+                const result = await response.json();
+
+                if (result.success) {
+
+                    pacientes = result.data;
+
                 }
-            } catch (err) {
-                console.error('❌ Erro ao carregar pacientes:', err);
-            }
-        }
-
-        // ============ CARREGAR DOCUMENTOS ============
-        async function carregarDocumentos(filtros = {}) {
-            try {
-                const params = new URLSearchParams();
-                if (filtros.status) params.append('status', filtros.status);
-                if (filtros.periodo) params.append('periodo', filtros.periodo);
-
-                const url = `${API_BASE}/api/documentos?${params}`;
-                console.log('📥 GET:', url);
-
-                const res = await fetch(url);
-                const json = await res.json();
-                console.log('📦 Resposta:', json);
-
-                const container = document.querySelector('table tbody') ||
-                    document.querySelector('[id*="lista"]') ||
-                    document.querySelector('tbody');
-
-                if (!container) {
-                    console.error('❌ Container não encontrado');
-                    return;
-                }
-
-                if (!json.success || !json.data || json.data.length === 0) {
-                    container.innerHTML = `
-        <tr>
-          <td colspan="5" style="text-align:center; padding:20px; color:#999;">
-            Nenhum registro encontrado<br>
-            <small>Adicione um novo registro ou ajuste os filtros.</small>
-          </td>
-        </tr>
-      `;
-                    return;
-                }
-
-                container.innerHTML = json.data.map(doc => `
-      <tr>
-        <td><strong>${doc.tipo || '-'}</strong></td>
-        <td>${doc.pacienteId?.nome || 'Paciente não vinculado'}</td>
-        <td>${new Date(doc.dataRegistro).toLocaleDateString('pt-BR')}</td>
-        <td><span style="background:#e8f5e9; color:#2e7d32; padding:4px 8px; border-radius:4px; font-size:12px;">${doc.status || 'Ativo'}</span></td>
-        <td>
-          <button onclick="editarDocumento('${doc._id}')" style="background:none; border:none; cursor:pointer;">✏️</button>
-        </td>
-      </tr>
-    `).join('');
 
             } catch (err) {
-                console.error('❌ Erro:', err);
-                alert('Erro ao carregar: ' + err.message);
+
+                console.error("Erro ao carregar pacientes", err);
+
             }
         }
 
-        // ============ SALVAR DOCUMENTO ============
-        async function salvarDocumento(e) {
-            if (e) e.preventDefault();
-            console.log('💾 Salvando...');
+        function renderizarSidebar() {
 
-            const dados = {
-                pacienteId: document.querySelector('select[name="pacienteId"]')?.value,
-                tipo: document.querySelector('select[name="tipo"]')?.value || 'Prontuário',
-                conteudo: document.querySelector('textarea[name="conteudo"]')?.value ||
-                    document.querySelector('textarea')?.value || '',
-                status: document.querySelector('select[name="status"]')?.value || 'Ativo'
-            };
+            const sidebar = document.getElementById("sidebarDocs");
 
-            console.log('📋 Dados:', dados);
+            let html = `<div class="sidebar-title">Módulos</div>`;
 
-            if (!dados.pacienteId) {
-                alert('⚠️ Selecione um paciente!');
+            for (const [key, mod] of Object.entries(MODULOS)) {
+
+                html += `
+                <div class="sidebar-item ${key === moduloAtual ? 'ativo' : ''}" onclick="carregarModulo('${key}')">
+
+                    <div class="sidebar-icon">
+                        <i class="fa-solid ${mod.icone}"></i>
+                    </div>
+
+                    <div class="sidebar-info">
+                        <h4>${mod.nome}</h4>
+                        <p>${mod.desc}</p>
+                    </div>
+
+                    <span class="sidebar-count" id="count-${key}">0</span>
+
+                </div>
+            `;
+            }
+
+            sidebar.innerHTML = html;
+        }
+
+        async function carregarModulo(key) {
+
+            moduloAtual = key;
+
+            renderizarSidebar();
+
+            document.getElementById("moduleTitle").innerText =
+                MODULOS[key].nome;
+
+            mostrarLoading(true);
+
+            try {
+
+                const response = await fetch(`${API}/documentos`);
+
+                const result = await response.json();
+
+                if (!result.success) {
+
+                    throw new Error(result.message);
+
+                }
+
+                dadosBackend = result.data
+                    .filter(doc => doc.tipo === MODULOS[key].tipoDocumento)
+                    .map(doc => ({
+
+                        id: doc._id,
+
+                        paciente: doc.pacienteId?.nome || "Paciente removido",
+
+                        pacienteId: doc.pacienteId?._id || "",
+
+                        tipo: doc.tipo,
+
+                        conteudo: doc.conteudo,
+
+                        status: doc.status,
+
+                        data: new Date(doc.dataRegistro).toLocaleDateString()
+
+                    }));
+
+                dadosFiltrados = [...dadosBackend];
+
+                renderizarTabela();
+
+                atualizarContadores();
+
+            } catch (err) {
+
+                console.error(err);
+
+                mostrarToast("Erro ao carregar dados", true);
+
+            } finally {
+
+                mostrarLoading(false);
+
+            }
+        }
+
+        function atualizarContadores() {
+
+            for (const key of Object.keys(MODULOS)) {
+
+                const tipo = MODULOS[key].tipoDocumento;
+
+                const count = dadosBackend.filter(x => x.tipo === tipo).length;
+
+                const el = document.getElementById(`count-${key}`);
+
+                if (el) {
+
+                    el.innerText = count;
+
+                }
+            }
+        }
+
+        function renderizarTabela() {
+
+            const thead = document.getElementById("tableHead");
+
+            const tbody = document.getElementById("tableBody");
+
+            const empty = document.getElementById("emptyState");
+
+            const cols = MODULOS[moduloAtual].cols;
+
+            thead.innerHTML =
+                `<tr>${cols.map(c => `<th>${c}</th>`).join("")}</tr>`;
+
+            if (dadosFiltrados.length === 0) {
+
+                tbody.innerHTML = "";
+
+                empty.style.display = "block";
+
                 return;
             }
 
+            empty.style.display = "none";
+
+            tbody.innerHTML = dadosFiltrados.map(row => `
+
+            <tr>
+
+                <td>${row.paciente}</td>
+
+                <td>${row.tipo}</td>
+
+                <td>${row.conteudo}</td>
+
+                <td>${row.data}</td>
+
+                <td>
+                    <span class="badge badge-success">
+                        ${row.status}
+                    </span>
+                </td>
+
+                <td>
+
+                    <div class="table-actions">
+
+                        <button class="action-btn"
+                            onclick="editarItem('${row.id}')">
+
+                            <i class="fa-solid fa-pen"></i>
+
+                        </button>
+
+                        <button class="action-btn delete"
+                            onclick="excluirItem('${row.id}')">
+
+                            <i class="fa-solid fa-trash"></i>
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+        }
+
+        function abrirFormulario() {
+
+            editandoId = null;
+
+            const modal = document.getElementById("modalForm");
+
+            const grid = document.getElementById("formGrid");
+
+            const titulo = document.getElementById("modalTitle");
+
+            titulo.innerText =
+                `Novo ${MODULOS[moduloAtual].nome}`;
+
+            grid.innerHTML = "";
+
+            MODULOS[moduloAtual].form.forEach(field => {
+
+                let html = `
+                <div class="form-group ${field.full ? 'full' : ''}">
+            `;
+
+                html += `
+                <label>
+                    ${field.label}
+                </label>
+            `;
+
+                if (field.type === "select") {
+
+                    html += `
+                    <select id="${field.id}">
+                        ${field.options.map(op =>
+                        `<option value="${op}">${op}</option>`
+                    ).join("")}
+                    </select>
+                `;
+
+                } else if (field.type === "select-pacientes") {
+
+                    html += `
+                    <select id="${field.id}" required>
+
+                        <option value="">
+                            Selecione um paciente
+                        </option>
+
+                        ${pacientes.map(p => `
+                            <option value="${p._id}">
+                                ${p.nome}
+                            </option>
+                        `).join("")}
+
+                    </select>
+                `;
+
+                } else if (field.type === "textarea") {
+
+                    html += `
+                    <textarea
+                        id="${field.id}"
+                        rows="4">
+                    </textarea>
+                `;
+
+                }
+
+                html += `</div>`;
+
+                grid.innerHTML += html;
+            });
+
+            modal.classList.add("active");
+        }
+
+        async function salvarRegistro(e) {
+
+            e.preventDefault();
+
+            mostrarLoading(true);
+
             try {
-                const res = await fetch(`${API_BASE}/api/documentos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dados)
-                });
 
-                const result = await res.json();
-                console.log('📥 Resposta:', result);
+                const pacienteId =
+                    document.getElementById("pacienteId").value;
 
-                if (result.success) {
-                    alert('✅ Documento salvo!');
-                    fecharModal();
-                    carregarDocumentos();
-                } else {
-                    alert('❌ ' + result.message);
-                }
-            } catch (err) {
-                alert('❌ Erro: ' + err.message);
-            }
-        }
+                const conteudo =
+                    document.getElementById("conteudo").value;
 
-        // ============ FILTROS ============
-        function aplicarFiltros() {
-            const statusSelect = document.querySelector('select[name="statusFiltro"]') ||
-                document.querySelector('select[name="status"]');
-            const periodoSelect = document.querySelector('select[name="periodo"]');
+                const status =
+                    document.getElementById("status").value;
 
-            const filtros = {
-                status: statusSelect?.value || '',
-                periodo: periodoSelect?.value || ''
-            };
+                const body = {
 
-            Object.keys(filtros).forEach(k => filtros[k] === '' && delete filtros[k]);
-            carregarDocumentos(filtros);
-        }
+                    pacienteId,
 
-        // ============ EDITAR/EXCLUIR ============
-        async function editarDocumento(id) {
-            alert('✏️ Editar: ' + id);
-        }
+                    tipo: MODULOS[moduloAtual].tipoDocumento,
 
-        // ============ INICIALIZAÇÃO ============
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('✅ Documento.html carregado');
+                    conteudo,
 
-            carregarDocumentos();
+                    status
 
-            // Filtros
-            document.querySelectorAll('select[name="statusFiltro"], select[name="status"], select[name="periodo"]').forEach(sel => {
-                sel.addEventListener('change', aplicarFiltros);
-            });
+                };
 
-            // Formulário
-            const form = document.querySelector('form');
-            if (form) {
-                form.addEventListener('submit', salvarDocumento);
-            }
+                let response;
 
-            // Botão Novo
-            document.querySelectorAll('button, a').forEach(btn => {
-                if (btn.textContent.includes('Novo') || btn.textContent.includes('+')) {
-                    btn.addEventListener('click', (e) => {
-                        if (btn.tagName === 'A') e.preventDefault();
-                        abrirFormulario();
+                if (editandoId) {
+
+                    response = await fetch(`${API}/documentos/${editandoId}`, {
+
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify(body)
+
                     });
+
+                } else {
+
+                    response = await fetch(`${API}/documentos`, {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify(body)
+
+                    });
+
                 }
-            });
 
-            // Botão Cancelar
-            document.querySelectorAll('button[type="button"]').forEach(btn => {
-                if (btn.textContent.includes('Cancelar')) {
-                    btn.addEventListener('click', fecharModal);
+                const result = await response.json();
+
+                if (!result.success) {
+
+                    throw new Error(result.message);
+
                 }
+
+                mostrarToast("Registro salvo!");
+
+                fecharModal();
+
+                carregarModulo(moduloAtual);
+
+            } catch (err) {
+
+                console.error(err);
+
+                mostrarToast("Erro ao salvar", true);
+
+            } finally {
+
+                mostrarLoading(false);
+
+            }
+        }
+
+        async function editarItem(id) {
+
+            try {
+
+                mostrarLoading(true);
+
+                const response =
+                    await fetch(`${API}/documentos/${id}`);
+
+                const result = await response.json();
+
+                if (!result.success) {
+
+                    throw new Error(result.message);
+
+                }
+
+                const item = result.data;
+
+                abrirFormulario();
+
+                editandoId = id;
+
+                document.getElementById("pacienteId").value =
+                    item.pacienteId?._id || "";
+
+                document.getElementById("conteudo").value =
+                    item.conteudo || "";
+
+                document.getElementById("status").value =
+                    item.status || "Ativo";
+
+                document.getElementById("modalTitle").innerText =
+                    `Editar ${MODULOS[moduloAtual].nome}`;
+
+            } catch (err) {
+
+                console.error(err);
+
+                mostrarToast("Erro ao carregar registro", true);
+
+            } finally {
+
+                mostrarLoading(false);
+
+            }
+        }
+
+        async function excluirItem(id) {
+
+            if (!confirm("Deseja excluir este registro?")) {
+                return;
+            }
+
+            mostrarLoading(true);
+
+            try {
+
+                const response =
+                    await fetch(`${API}/documentos/${id}`, {
+
+                        method: "DELETE"
+
+                    });
+
+                const result = await response.json();
+
+                if (!result.success) {
+
+                    throw new Error(result.message);
+
+                }
+
+                mostrarToast("Registro removido!");
+
+                carregarModulo(moduloAtual);
+
+            } catch (err) {
+
+                console.error(err);
+
+                mostrarToast("Erro ao excluir", true);
+
+            } finally {
+
+                mostrarLoading(false);
+
+            }
+        }
+
+        function filtrarDados(busca = "") {
+
+            const termo = busca.toLowerCase();
+
+            const statusFiltro =
+                document.getElementById("filtroStatus").value;
+
+            dadosFiltrados = dadosBackend.filter(row => {
+
+                const matchBusca =
+                    Object.values(row)
+                        .some(val =>
+                            String(val)
+                                .toLowerCase()
+                                .includes(termo)
+                        );
+
+                const matchStatus =
+                    !statusFiltro ||
+                    row.status.toLowerCase() ===
+                    statusFiltro.toLowerCase();
+
+                return matchBusca && matchStatus;
             });
 
-            // Fechar modal ao clicar fora
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(); });
-            });
-        });
+            renderizarTabela();
+        }
 
-        // Exportar funções
-        window.abrirFormulario = abrirFormulario;
-        window.fecharModal = fecharModal;
-        window.filtrarDados = filtrarDados;
-        window.carregarDocumentos = carregarDocumentos;
-        window.editarDocumento = editarDocumento;
+        function fecharModal() {
+
+            document
+                .getElementById("modalForm")
+                .classList.remove("active");
+        }
+
+        function mostrarLoading(show) {
+
+            document
+                .getElementById("loadingOverlay")
+                .classList.toggle("active", show);
+        }
+
+        function mostrarToast(msg, isError = false) {
+
+            const toast =
+                document.getElementById("toast");
+
+            document.getElementById("toastMsg")
+                .innerText = msg;
+
+            toast.className =
+                `toast ${isError ? 'error' : ''} show`;
+
+            setTimeout(() => {
+
+                toast.classList.remove("show");
+
+            }, 3000);
+        }
+
+        function exportarDados() {
+
+            mostrarToast("Exportação iniciada...");
+        }
+
+        function sair() {
+
+            localStorage.removeItem("usuario");
+
+            localStorage.removeItem("token");
+
+            window.location.href = "dashboard.html";
+        }
     </script>
 </body>
 
