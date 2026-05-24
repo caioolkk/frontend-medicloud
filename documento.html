@@ -680,9 +680,10 @@
                 </div>
             </div>
         </main>
-        <div class="logout-btn" onclick="sair()">
-            <i class="fa-solid fa-right-from-bracket"></i> Sair
-        </div>
+        <button class="btn-voltar" onclick="window.history.back()">
+            <i class="fa-solid fa-arrow-left"></i>
+            Voltar
+        </button>
     </div>
 
     <script>
@@ -1396,14 +1397,7 @@
             mostrarToast("Exportação iniciada...");
         }
 
-        function sair() {
-
-            localStorage.removeItem("usuario");
-
-            localStorage.removeItem("token");
-
-            window.location.href = "dashboard.html";
-        }
+        
     </script>
 </body>
 
