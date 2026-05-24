@@ -663,36 +663,56 @@
 
     <!-- ============ SCRIPT CADASTRO PACIENTES ============ -->
     <script>
-        // ============ CONFIGURAÇÃO ============
+        // ============ CONFIG ============
         const API_BASE = 'https://medicloud-backend-wy7s.onrender.com';
 
-        // ============ FUNÇÕES DE MODAL ============
-        function abrirModalNovoPaciente() {
-            console.log('🔘 Abrindo modal...');
-            const modal = document.getElementById('modalNovoPaciente');
+        // ============ FUNÇÕES DE MODAL (nomes que seu HTML já usa!) ============
+
+        // Esta é a que seu botão onclick="abrirModal()" está chamando!
+        function abrirModal() {
+            console.log('🔘 abrirModal() chamado');
+
+            // Tenta vários seletores possíveis para o modal
+            const modal =
+                document.getElementById('modalNovoPaciente') ||
+                document.getElementById('modal') ||
+                document.querySelector('.modal') ||
+                document.querySelector('[id*="modal"]') ||
+                document.querySelector('div[role="dialog"]') ||
+                document.querySelector('div[class*="modal"]');
+
             if (modal) {
                 modal.style.display = 'flex';
-                console.log('✅ Modal aberto');
+                modal.style.display = modal.style.display === 'flex' ? 'flex' : 'block';
+                console.log('✅ Modal aberto:', modal.id || modal.className);
             } else {
-                console.error('❌ Modal não encontrado!');
-                // Tenta encontrar por classe ou outro seletor
-                const modalAlt = document.querySelector('.modal') ||
-                    document.querySelector('[id*="modal"]') ||
-                    document.querySelector('div[style*="display: none"]');
-                if (modalAlt) {
-                    modalAlt.style.display = 'flex';
-                    console.log('✅ Modal alternativo aberto');
-                }
+                console.error('❌ Nenhum modal encontrado!');
+                // Debug: lista todos os divs com display none
+                console.log('🔍 Modais possíveis:',
+                    [...document.querySelectorAll('div')].filter(d =>
+                        d.id?.includes('modal') || d.className?.includes('modal')
+                    ).map(d => ({ id: d.id, class: d.className }))
+                );
             }
         }
 
-        function fecharModalNovoPaciente() {
-            const modal = document.getElementById('modalNovoPaciente');
+        function fecharModal() {
+            const modal =
+                document.getElementById('modalNovoPaciente') ||
+                document.getElementById('modal') ||
+                document.querySelector('.modal');
+
             if (modal) {
                 modal.style.display = 'none';
-                // Limpar formulário
-                const form = document.getElementById('formNovoPaciente');
-                if (form) form.reset();
+                // Resetar form ao fechar
+                const form = document.getElementById('formNovoPaciente') ||
+                    document.getElementById('form') ||
+                    document.querySelector('form');
+                if (form) {
+                    form.reset();
+                    form.onsubmit = salvarPaciente; // Resetar para modo criar
+                }
+                console.log('✅ Modal fechado');
             }
         }
 
@@ -703,19 +723,26 @@
                     ? `${API_BASE}/api/pacientes?busca=${encodeURIComponent(busca)}`
                     : `${API_BASE}/api/pacientes`;
 
-                console.log('📥 Buscando pacientes:', url);
+                console.log('📥 GET:', url);
                 const res = await fetch(url);
-                const data = await res.json();
+                const json = await res.json();
 
-                console.log('📦 Resposta:', data);
+                console.log('📦 API response:', { ok: res.ok, success: json.success, count: json.data?.length });
 
-                const tbody = document.querySelector('table tbody');
+                // Procura o tbody de várias formas
+                const tbody =
+                    document.querySelector('table tbody') ||
+                    document.querySelector('tbody') ||
+                    document.getElementById('listaPacientes') ||
+                    document.querySelector('[id*="lista"]');
+
                 if (!tbody) {
-                    console.error('❌ <tbody> não encontrado');
+                    console.error('❌ tbody não encontrado!');
+                    console.log('🔍 Tables no HTML:', document.querySelectorAll('table'));
                     return;
                 }
 
-                if (!data.success || !data.data || data.data.length === 0) {
+                if (!json.success || !json.data || json.data.length === 0) {
                     tbody.innerHTML = `
         <tr>
           <td colspan="5" style="text-align:center; padding:20px; color:#999;">
@@ -727,7 +754,8 @@
                     return;
                 }
 
-                tbody.innerHTML = data.data.map(p => `
+                // Renderiza os dados
+                tbody.innerHTML = json.data.map(p => `
       <tr>
         <td>${p.nome || '-'}</td>
         <td>${p.cpf || '-'}</td>
@@ -740,29 +768,37 @@
       </tr>
     `).join('');
 
+                console.log('✅ Renderizados', json.data.length, 'pacientes');
+
             } catch (err) {
-                console.error('❌ Erro ao carregar:', err);
-                alert('Erro ao carregar pacientes. Verifique o console (F12).');
+                console.error('❌ Erro carregarPacientes:', err);
             }
         }
 
         // ============ SALVAR PACIENTE ============
         async function salvarPaciente(e) {
             e.preventDefault();
-            console.log('💾 Salvando paciente...');
+            console.log('💾 salvarPaciente() chamado');
 
-            const dados = {
-                nome: document.querySelector('input[name="nome"]')?.value || '',
-                cpf: document.querySelector('input[name="cpf"]')?.value || '',
-                dataNascimento: document.querySelector('input[name="dataNascimento"]')?.value || '',
-                telefone: document.querySelector('input[name="telefone"]')?.value || '',
-                email: document.querySelector('input[name="email"]')?.value || '',
-                convenio: document.querySelector('select[name="convenio"]')?.value || 'Particular',
-                endereco: document.querySelector('input[name="endereco"]')?.value || '',
-                observacoes: document.querySelector('textarea[name="observacoes"]')?.value || ''
+            // Coleta dados - tenta vários seletores possíveis
+            const getVal = (name, type = 'input') => {
+                return document.querySelector(`${type}[name="${name}"]`)?.value?.trim() ||
+                    document.querySelector(`[name="${name}"]`)?.value?.trim() || '';
             };
 
-            console.log('📋 Dados:', dados);
+            const dados = {
+                nome: getVal('nome'),
+                cpf: getVal('cpf'),
+                dataNascimento: getVal('dataNascimento'),
+                telefone: getVal('telefone'),
+                email: getVal('email'),
+                convenio: document.querySelector('select[name="convenio"]')?.value ||
+                    document.querySelector('[name="convenio"]')?.value || 'Particular',
+                endereco: getVal('endereco'),
+                observacoes: getVal('observacoes', 'textarea')
+            };
+
+            console.log('📋 Dados enviados:', dados);
 
             if (!dados.nome || !dados.cpf) {
                 alert('⚠️ Nome e CPF são obrigatórios!');
@@ -770,6 +806,7 @@
             }
 
             try {
+                console.log('📤 POST /api/pacientes');
                 const res = await fetch(`${API_BASE}/api/pacientes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -777,63 +814,76 @@
                 });
 
                 const result = await res.json();
-                console.log('📤 Resposta:', result);
+                console.log('📥 Resposta:', { status: res.status, ok: res.ok, result });
 
-                if (result.success) {
-                    alert('✅ Paciente cadastrado com sucesso!');
-                    fecharModalNovoPaciente();
-                    carregarPacientes();
+                if (res.ok && result.success) {
+                    console.log('✅ Salvou! ID:', result.data?._id);
+                    alert('✅ Paciente cadastrado!');
+                    fecharModal();
+                    carregarPacientes(); // Recarrega a tabela
                 } else {
-                    alert('❌ Erro: ' + (result.message || 'Falha ao salvar'));
+                    console.error('❌ Backend error:', result);
+                    alert('❌ ' + (result.message || 'Erro ao salvar'));
                 }
             } catch (err) {
-                console.error('❌ Erro:', err);
-                alert('❌ Erro de conexão. Verifique se o backend está online.');
+                console.error('❌ Fetch error:', err);
+                alert('❌ Erro de conexão: ' + err.message);
             }
         }
 
-        // ============ EDITAR PACIENTE ============
+        // ============ EDITAR ============
         async function editarPaciente(id) {
+            console.log('✏️ editarPaciente(', id, ')');
             try {
                 const res = await fetch(`${API_BASE}/api/pacientes/${id}`);
                 const { data, success } = await res.json();
 
-                if (!success) throw new Error('Paciente não encontrado');
+                if (!success) throw new Error('Não encontrado');
 
-                // Preencher campos
-                document.querySelector('input[name="nome"]').value = data.nome || '';
-                document.querySelector('input[name="cpf"]').value = data.cpf || '';
-                document.querySelector('input[name="dataNascimento"]').value = data.dataNascimento?.split('T')[0] || '';
-                document.querySelector('input[name="telefone"]').value = data.telefone || '';
-                document.querySelector('input[name="email"]').value = data.email || '';
-                document.querySelector('select[name="convenio"]').value = data.convenio || 'Particular';
-                document.querySelector('input[name="endereco"]').value = data.endereco || '';
-                document.querySelector('textarea[name="observacoes"]').value = data.observacoes || '';
-
-                // Mudar form para modo edição
-                const form = document.getElementById('formNovoPaciente');
-                form.onsubmit = async (e) => {
-                    e.preventDefault();
-                    await atualizarPaciente(id);
+                // Preenche campos
+                const setVal = (name, val) => {
+                    const el = document.querySelector(`[name="${name}"]`);
+                    if (el) el.value = val || '';
                 };
 
-                abrirModalNovoPaciente();
+                setVal('nome', data.nome);
+                setVal('cpf', data.cpf);
+                setVal('dataNascimento', data.dataNascimento?.split('T')[0]);
+                setVal('telefone', data.telefone);
+                setVal('email', data.email);
+                setVal('convenio', data.convenio);
+                setVal('endereco', data.endereco);
+                setVal('observacoes', data.observacoes);
+
+                // Muda form para edição
+                const form = document.getElementById('formNovoPaciente') ||
+                    document.querySelector('form');
+                if (form) {
+                    form.onsubmit = async (e) => {
+                        e.preventDefault();
+                        await atualizarPaciente(id);
+                    };
+                }
+
+                abrirModal(); // Abre o modal com os dados
             } catch (err) {
                 alert('❌ Erro ao carregar paciente');
             }
         }
 
-        // ============ ATUALIZAR PACIENTE ============
+        // ============ ATUALIZAR ============
         async function atualizarPaciente(id) {
+            const getVal = (name) => document.querySelector(`[name="${name}"]`)?.value || '';
+
             const dados = {
-                nome: document.querySelector('input[name="nome"]').value,
-                cpf: document.querySelector('input[name="cpf"]').value,
-                dataNascimento: document.querySelector('input[name="dataNascimento"]').value,
-                telefone: document.querySelector('input[name="telefone"]').value,
-                email: document.querySelector('input[name="email"]').value,
-                convenio: document.querySelector('select[name="convenio"]').value,
-                endereco: document.querySelector('input[name="endereco"]').value,
-                observacoes: document.querySelector('textarea[name="observacoes"]').value
+                nome: getVal('nome'),
+                cpf: getVal('cpf'),
+                dataNascimento: getVal('dataNascimento'),
+                telefone: getVal('telefone'),
+                email: getVal('email'),
+                convenio: document.querySelector('[name="convenio"]')?.value || 'Particular',
+                endereco: getVal('endereco'),
+                observacoes: getVal('observacoes')
             };
 
             try {
@@ -842,42 +892,34 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dados)
                 });
-
                 const result = await res.json();
 
                 if (result.success) {
-                    alert('✅ Paciente atualizado!');
-                    fecharModalNovoPaciente();
+                    alert('✅ Atualizado!');
+                    fecharModal();
                     carregarPacientes();
-                    // Resetar para modo criação
-                    document.getElementById('formNovoPaciente').onsubmit = salvarPaciente;
+                    // Reset form para modo criar
+                    const form = document.querySelector('form');
+                    if (form) form.onsubmit = salvarPaciente;
                 } else {
-                    alert('❌ Erro ao atualizar');
+                    alert('❌ ' + result.message);
                 }
             } catch (err) {
                 alert('❌ Erro de conexão');
             }
         }
 
-        // ============ EXCLUIR PACIENTE ============
+        // ============ EXCLUIR ============
         async function excluirPaciente(id) {
-            if (!confirm('Tem certeza que deseja excluir este paciente?')) return;
-
+            if (!confirm('Excluir este paciente?')) return;
             try {
-                const res = await fetch(`${API_BASE}/api/pacientes/${id}`, {
-                    method: 'DELETE'
-                });
+                const res = await fetch(`${API_BASE}/api/pacientes/${id}`, { method: 'DELETE' });
                 const result = await res.json();
-
                 if (result.success) {
-                    alert('✅ Paciente removido!');
+                    alert('✅ Removido!');
                     carregarPacientes();
-                } else {
-                    alert('❌ Erro ao excluir');
                 }
-            } catch (err) {
-                alert('❌ Erro de conexão');
-            }
+            } catch (err) { alert('❌ Erro'); }
         }
 
         // ============ BUSCA ============
@@ -888,53 +930,45 @@
 
         // ============ INICIALIZAÇÃO ============
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('✅ Página carregada');
+            console.log('✅ DOMContentLoaded');
 
-            // Carregar pacientes
+            // Carrega lista
             carregarPacientes();
 
-            // Botão "Novo Paciente"
-            const btnNovo = document.querySelector('button') ||
-                document.querySelector('a[href="#"]') ||
-                document.querySelector('[onclick*="modal"]');
-
-            if (btnNovo) {
-                console.log('🔘 Botão encontrado:', btnNovo);
-                btnNovo.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    abrirModalNovoPaciente();
-                });
-            } else {
-                console.warn('⚠️  Botão não encontrado');
+            // Busca em tempo real
+            const busca = document.querySelector('input[placeholder="Buscar"]');
+            if (busca) {
+                let t;
+                busca.addEventListener('input', () => { clearTimeout(t); t = setTimeout(filtrar, 300); });
             }
 
             // Formulário
-            const form = document.getElementById('formNovoPaciente');
-            if (form) {
+            const form = document.getElementById('formNovoPaciente') || document.querySelector('form');
+            if (form && !form.dataset.bound) {
                 form.addEventListener('submit', salvarPaciente);
+                form.dataset.bound = 'true';
+                console.log('📝 Form vinculado');
             }
 
-            // Busca em tempo real
-            const buscaInput = document.querySelector('input[placeholder="Buscar"]');
-            if (buscaInput) {
-                let timeout;
-                buscaInput.addEventListener('input', (e) => {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(filtrar, 300);
+            // Fechar modal ao clicar no X ou fora
+            document.querySelectorAll('.modal-close, [onclick*="fechar"], button[type="button"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (btn.closest('.modal')) {
+                        e.stopPropagation();
+                        fecharModal();
+                    }
                 });
-            }
+            });
 
-            // Fechar modal ao clicar fora
             document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) fecharModalNovoPaciente();
-                });
+                modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(); });
             });
         });
 
-        // Exportar funções globais
-        window.abrirModalNovoPaciente = abrirModalNovoPaciente;
-        window.fecharModalNovoPaciente = fecharModalNovoPaciente;
+        // Exporta funções globais (para onclick no HTML)
+        window.abrirModal = abrirModal;
+        window.fecharModal = fecharModal;
+        window.salvarPaciente = salvarPaciente;
         window.editarPaciente = editarPaciente;
         window.excluirPaciente = excluirPaciente;
         window.filtrar = filtrar;
