@@ -666,57 +666,116 @@
         // ============ CONFIG ============
         const API_BASE = 'https://medicloud-backend-wy7s.onrender.com';
 
-        // ============ FUNÇÕES DE MODAL (nomes que seu HTML já usa!) ============
+        // ============ FUNÇÕES GLOBAIS (nomes que seu HTML usa!) ============
 
-        // Esta é a que seu botão onclick="abrirModal()" está chamando!
+        // Função que o botão onclick está chamando
         function abrirModal() {
             console.log('🔘 abrirModal() chamado');
-
-            // Tenta vários seletores possíveis para o modal
-            const modal =
-                document.getElementById('modalNovoPaciente') ||
-                document.getElementById('modal') ||
+            const modal = document.getElementById('modalNovoPaciente') ||
                 document.querySelector('.modal') ||
-                document.querySelector('[id*="modal"]') ||
-                document.querySelector('div[role="dialog"]') ||
-                document.querySelector('div[class*="modal"]');
-
+                document.querySelector('[id*="modal"]');
             if (modal) {
                 modal.style.display = 'flex';
-                modal.style.display = modal.style.display === 'flex' ? 'flex' : 'block';
-                console.log('✅ Modal aberto:', modal.id || modal.className);
-            } else {
-                console.error('❌ Nenhum modal encontrado!');
-                // Debug: lista todos os divs com display none
-                console.log('🔍 Modais possíveis:',
-                    [...document.querySelectorAll('div')].filter(d =>
-                        d.id?.includes('modal') || d.className?.includes('modal')
-                    ).map(d => ({ id: d.id, class: d.className }))
-                );
+                console.log('✅ Modal aberto');
             }
         }
 
         function fecharModal() {
-            const modal =
-                document.getElementById('modalNovoPaciente') ||
-                document.getElementById('modal') ||
+            const modal = document.getElementById('modalNovoPaciente') ||
                 document.querySelector('.modal');
-
             if (modal) {
                 modal.style.display = 'none';
-                // Resetar form ao fechar
-                const form = document.getElementById('formNovoPaciente') ||
-                    document.getElementById('form') ||
-                    document.querySelector('form');
-                if (form) {
-                    form.reset();
-                    form.onsubmit = salvarPaciente; // Resetar para modo criar
-                }
+                // Limpar form
+                const form = document.querySelector('form');
+                if (form) form.reset();
                 console.log('✅ Modal fechado');
             }
         }
 
-        // ============ CARREGAR PACIENTES ============
+        // ESTA É A FUNÇÃO QUE SEU FORM ESTÁ CHAMANDO!
+        function salvarPac(e) {
+            if (e) e.preventDefault();
+            console.log('💾 salvarPac() chamado');
+
+            // Capturar campos - usando seletores mais específicos
+            const nome = document.querySelector('input[name="nome"]')?.value ||
+                document.querySelector('input[placeholder*="Nome"]')?.value ||
+                document.querySelectorAll('input')[0]?.value || '';
+
+            const cpf = document.querySelector('input[name="cpf"]')?.value ||
+                document.querySelector('input[placeholder="CPF"]')?.value ||
+                document.querySelectorAll('input')[1]?.value || '';
+
+            const dataNasc = document.querySelector('input[name="dataNascimento"]')?.value ||
+                document.querySelector('input[type="date"]')?.value || '';
+
+            const telefone = document.querySelector('input[name="telefone"]')?.value ||
+                document.querySelector('input[placeholder*="Telefone"]')?.value ||
+                document.querySelectorAll('input')[2]?.value || '';
+
+            const email = document.querySelector('input[name="email"]')?.value ||
+                document.querySelector('input[type="email"]')?.value ||
+                document.querySelector('input[placeholder*="Email"]')?.value || '';
+
+            const convenio = document.querySelector('select[name="convenio"]')?.value ||
+                document.querySelector('select')?.value || 'Particular';
+
+            const endereco = document.querySelector('input[name="endereco"]')?.value ||
+                document.querySelector('input[placeholder*="Endereço"]')?.value || '';
+
+            const obs = document.querySelector('textarea[name="observacoes"]')?.value ||
+                document.querySelector('textarea[placeholder*="Observações"]')?.value ||
+                document.querySelector('textarea')?.value || '';
+
+            const dados = {
+                nome: nome.trim(),
+                cpf: cpf.trim(),
+                dataNascimento: dataNasc,
+                telefone: telefone.trim(),
+                email: email.trim(),
+                convenio: convenio,
+                endereco: endereco.trim(),
+                observacoes: obs.trim()
+            };
+
+            console.log('📋 Dados capturados:', dados);
+
+            // Validação
+            if (!dados.nome || !dados.cpf) {
+                alert('⚠️ Nome e CPF são obrigatórios!');
+                return;
+            }
+
+            // Salvar
+            salvarPaciente(dados);
+        }
+
+        // Função interna que faz o POST
+        async function salvarPaciente(dados) {
+            try {
+                console.log('📤 POST /api/pacientes', dados);
+                const res = await fetch(`${API_BASE}/api/pacientes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                const result = await res.json();
+                console.log('📥 Resposta:', result);
+
+                if (res.ok && result.success) {
+                    alert('✅ Paciente cadastrado!');
+                    fecharModal();
+                    carregarPacientes();
+                } else {
+                    alert('❌ ' + (result.message || 'Erro ao salvar'));
+                }
+            } catch (err) {
+                console.error('❌ Erro:', err);
+                alert('❌ Erro de conexão: ' + err.message);
+            }
+        }
+
         async function carregarPacientes(busca = '') {
             try {
                 const url = busca
@@ -727,18 +786,13 @@
                 const res = await fetch(url);
                 const json = await res.json();
 
-                console.log('📦 API response:', { ok: res.ok, success: json.success, count: json.data?.length });
+                console.log('📦 API:', json);
 
-                // Procura o tbody de várias formas
-                const tbody =
-                    document.querySelector('table tbody') ||
-                    document.querySelector('tbody') ||
-                    document.getElementById('listaPacientes') ||
-                    document.querySelector('[id*="lista"]');
+                const tbody = document.querySelector('table tbody') ||
+                    document.querySelector('tbody');
 
                 if (!tbody) {
-                    console.error('❌ tbody não encontrado!');
-                    console.log('🔍 Tables no HTML:', document.querySelectorAll('table'));
+                    console.error('❌ tbody não encontrado');
                     return;
                 }
 
@@ -754,7 +808,6 @@
                     return;
                 }
 
-                // Renderiza os dados
                 tbody.innerHTML = json.data.map(p => `
       <tr>
         <td>${p.nome || '-'}</td>
@@ -762,128 +815,60 @@
         <td>${p.telefone || '-'}</td>
         <td><span style="background:#e3f2fd; color:#1976d2; padding:4px 12px; border-radius:4px; font-size:12px;">${p.convenio || 'Particular'}</span></td>
         <td>
-          <button onclick="editarPaciente('${p._id}')" style="background:none; border:none; cursor:pointer; font-size:16px; margin-right:8px;" title="Editar">✏️</button>
-          <button onclick="excluirPaciente('${p._id}')" style="background:none; border:none; cursor:pointer; font-size:16px; color:#d32f2f;" title="Excluir">🗑️</button>
+          <button onclick="editarPaciente('${p._id}')" style="background:none; border:none; cursor:pointer; font-size:16px;">✏️</button>
         </td>
       </tr>
     `).join('');
 
-                console.log('✅ Renderizados', json.data.length, 'pacientes');
-
             } catch (err) {
-                console.error('❌ Erro carregarPacientes:', err);
+                console.error('❌ Erro carregar:', err);
             }
         }
 
-        // ============ SALVAR PACIENTE ============
-        async function salvarPaciente(e) {
-            e.preventDefault();
-            console.log('💾 salvarPaciente() chamado');
-
-            // Coleta dados - tenta vários seletores possíveis
-            const getVal = (name, type = 'input') => {
-                return document.querySelector(`${type}[name="${name}"]`)?.value?.trim() ||
-                    document.querySelector(`[name="${name}"]`)?.value?.trim() || '';
-            };
-
-            const dados = {
-                nome: getVal('nome'),
-                cpf: getVal('cpf'),
-                dataNascimento: getVal('dataNascimento'),
-                telefone: getVal('telefone'),
-                email: getVal('email'),
-                convenio: document.querySelector('select[name="convenio"]')?.value ||
-                    document.querySelector('[name="convenio"]')?.value || 'Particular',
-                endereco: getVal('endereco'),
-                observacoes: getVal('observacoes', 'textarea')
-            };
-
-            console.log('📋 Dados enviados:', dados);
-
-            if (!dados.nome || !dados.cpf) {
-                alert('⚠️ Nome e CPF são obrigatórios!');
-                return;
-            }
-
-            try {
-                console.log('📤 POST /api/pacientes');
-                const res = await fetch(`${API_BASE}/api/pacientes`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dados)
-                });
-
-                const result = await res.json();
-                console.log('📥 Resposta:', { status: res.status, ok: res.ok, result });
-
-                if (res.ok && result.success) {
-                    console.log('✅ Salvou! ID:', result.data?._id);
-                    alert('✅ Paciente cadastrado!');
-                    fecharModal();
-                    carregarPacientes(); // Recarrega a tabela
-                } else {
-                    console.error('❌ Backend error:', result);
-                    alert('❌ ' + (result.message || 'Erro ao salvar'));
-                }
-            } catch (err) {
-                console.error('❌ Fetch error:', err);
-                alert('❌ Erro de conexão: ' + err.message);
-            }
-        }
-
-        // ============ EDITAR ============
         async function editarPaciente(id) {
-            console.log('✏️ editarPaciente(', id, ')');
+            console.log('✏️ Editar:', id);
             try {
                 const res = await fetch(`${API_BASE}/api/pacientes/${id}`);
-                const { data, success } = await res.json();
+                const { data } = await res.json();
 
-                if (!success) throw new Error('Não encontrado');
+                // Preencher campos
+                const inputs = document.querySelectorAll('input');
+                const selects = document.querySelectorAll('select');
+                const textareas = document.querySelectorAll('textarea');
 
-                // Preenche campos
-                const setVal = (name, val) => {
-                    const el = document.querySelector(`[name="${name}"]`);
-                    if (el) el.value = val || '';
+                if (inputs[0]) inputs[0].value = data.nome || '';
+                if (inputs[1]) inputs[1].value = data.cpf || '';
+                if (inputs[2]) inputs[2].value = data.dataNascimento?.split('T')[0] || '';
+                if (inputs[3]) inputs[3].value = data.telefone || '';
+                if (inputs[4]) inputs[4].value = data.email || '';
+                if (selects[0]) selects[0].value = data.convenio || 'Particular';
+                if (inputs[5]) inputs[5].value = data.endereco || '';
+                if (textareas[0]) textareas[0].value = data.observacoes || '';
+
+                // Mudar form para edição
+                const form = document.querySelector('form');
+                form.onsubmit = async (e) => {
+                    e.preventDefault();
+                    await atualizarPaciente(id);
                 };
 
-                setVal('nome', data.nome);
-                setVal('cpf', data.cpf);
-                setVal('dataNascimento', data.dataNascimento?.split('T')[0]);
-                setVal('telefone', data.telefone);
-                setVal('email', data.email);
-                setVal('convenio', data.convenio);
-                setVal('endereco', data.endereco);
-                setVal('observacoes', data.observacoes);
-
-                // Muda form para edição
-                const form = document.getElementById('formNovoPaciente') ||
-                    document.querySelector('form');
-                if (form) {
-                    form.onsubmit = async (e) => {
-                        e.preventDefault();
-                        await atualizarPaciente(id);
-                    };
-                }
-
-                abrirModal(); // Abre o modal com os dados
+                abrirModal();
             } catch (err) {
-                alert('❌ Erro ao carregar paciente');
+                alert('❌ Erro ao carregar');
             }
         }
 
-        // ============ ATUALIZAR ============
         async function atualizarPaciente(id) {
-            const getVal = (name) => document.querySelector(`[name="${name}"]`)?.value || '';
-
+            const inputs = document.querySelectorAll('input');
             const dados = {
-                nome: getVal('nome'),
-                cpf: getVal('cpf'),
-                dataNascimento: getVal('dataNascimento'),
-                telefone: getVal('telefone'),
-                email: getVal('email'),
-                convenio: document.querySelector('[name="convenio"]')?.value || 'Particular',
-                endereco: getVal('endereco'),
-                observacoes: getVal('observacoes')
+                nome: inputs[0]?.value || '',
+                cpf: inputs[1]?.value || '',
+                dataNascimento: inputs[2]?.value || '',
+                telefone: inputs[3]?.value || '',
+                email: inputs[4]?.value || '',
+                convenio: document.querySelector('select')?.value || 'Particular',
+                endereco: inputs[5]?.value || '',
+                observacoes: document.querySelector('textarea')?.value || ''
             };
 
             try {
@@ -898,31 +883,12 @@
                     alert('✅ Atualizado!');
                     fecharModal();
                     carregarPacientes();
-                    // Reset form para modo criar
-                    const form = document.querySelector('form');
-                    if (form) form.onsubmit = salvarPaciente;
-                } else {
-                    alert('❌ ' + result.message);
                 }
             } catch (err) {
-                alert('❌ Erro de conexão');
+                alert('❌ Erro');
             }
         }
 
-        // ============ EXCLUIR ============
-        async function excluirPaciente(id) {
-            if (!confirm('Excluir este paciente?')) return;
-            try {
-                const res = await fetch(`${API_BASE}/api/pacientes/${id}`, { method: 'DELETE' });
-                const result = await res.json();
-                if (result.success) {
-                    alert('✅ Removido!');
-                    carregarPacientes();
-                }
-            } catch (err) { alert('❌ Erro'); }
-        }
-
-        // ============ BUSCA ============
         function filtrar() {
             const busca = document.querySelector('input[placeholder="Buscar"]')?.value || '';
             carregarPacientes(busca);
@@ -932,45 +898,35 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('✅ DOMContentLoaded');
 
-            // Carrega lista
             carregarPacientes();
 
-            // Busca em tempo real
+            // Busca
             const busca = document.querySelector('input[placeholder="Buscar"]');
             if (busca) {
                 let t;
                 busca.addEventListener('input', () => { clearTimeout(t); t = setTimeout(filtrar, 300); });
             }
 
-            // Formulário
-            const form = document.getElementById('formNovoPaciente') || document.querySelector('form');
-            if (form && !form.dataset.bound) {
-                form.addEventListener('submit', salvarPaciente);
-                form.dataset.bound = 'true';
-                console.log('📝 Form vinculado');
+            // Form submit - usa salvarPac
+            const form = document.querySelector('form');
+            if (form) {
+                form.onsubmit = salvarPac;
+                console.log('📝 Form vinculado a salvarPac');
             }
 
-            // Fechar modal ao clicar no X ou fora
-            document.querySelectorAll('.modal-close, [onclick*="fechar"], button[type="button"]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    if (btn.closest('.modal')) {
-                        e.stopPropagation();
-                        fecharModal();
-                    }
-                });
-            });
-
+            // Fechar modal
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(); });
             });
         });
 
-        // Exporta funções globais (para onclick no HTML)
+        // Exportar TODAS as funções
         window.abrirModal = abrirModal;
         window.fecharModal = fecharModal;
+        window.salvarPac = salvarPac;
         window.salvarPaciente = salvarPaciente;
+        window.carregarPacientes = carregarPacientes;
         window.editarPaciente = editarPaciente;
-        window.excluirPaciente = excluirPaciente;
         window.filtrar = filtrar;
     </script>
     <!-- ============ FIM SCRIPT ============ -->
