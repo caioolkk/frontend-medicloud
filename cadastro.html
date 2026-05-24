@@ -663,14 +663,10 @@
 
     <!-- ============ SCRIPT CADASTRO PACIENTES ============ -->
     <script>
-        // ============ CONFIG ============
         const API_BASE = 'https://medicloud-backend-wy7s.onrender.com';
 
-        // ============ FUNÇÕES GLOBAIS (nomes que seu HTML usa!) ============
-
-        // Função que o botão onclick está chamando
+        // ============ FUNÇÕES DE MODAL ============
         function abrirModal() {
-            console.log('🔘 abrirModal() chamado');
             const modal = document.getElementById('modalNovoPaciente') ||
                 document.querySelector('.modal') ||
                 document.querySelector('[id*="modal"]');
@@ -685,75 +681,110 @@
                 document.querySelector('.modal');
             if (modal) {
                 modal.style.display = 'none';
-                // Limpar form
-                const form = document.querySelector('form');
-                if (form) form.reset();
+                // Limpar todos os campos
+                document.querySelectorAll('input, textarea, select').forEach(el => {
+                    if (el.type !== 'button' && el.type !== 'submit') el.value = '';
+                });
                 console.log('✅ Modal fechado');
             }
         }
 
-        // ESTA É A FUNÇÃO QUE SEU FORM ESTÁ CHAMANDO!
+        // ============ CAPTURAR DADOS DO FORM ============
+        function capturarDadosForm() {
+            // Pegar TODOS os inputs, selects e textareas
+            const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input:not([type])');
+            const dateInput = document.querySelector('input[type="date"]');
+            const select = document.querySelector('select');
+            const textarea = document.querySelector('textarea');
+
+            console.log('🔍 Inputs encontrados:', inputs.length);
+
+            // Mapear por índice (ordem visual do formulário)
+            const dados = {
+                nome: '',
+                cpf: '',
+                dataNascimento: '',
+                telefone: '',
+                email: '',
+                convenio: 'Particular',
+                endereco: '',
+                observacoes: ''
+            };
+
+            // Tentar capturar por placeholder ou label
+            inputs.forEach((input, index) => {
+                const placeholder = input.placeholder?.toLowerCase() || '';
+                const label = input.closest('div')?.querySelector('label')?.textContent?.toLowerCase() || '';
+                const text = placeholder + ' ' + label;
+
+                console.log(`Input ${index}:`, {
+                    placeholder: input.placeholder,
+                    label: label,
+                    value: input.value,
+                    type: input.type
+                });
+
+                // Detectar campo pelo texto
+                if (text.includes('nome')) {
+                    dados.nome = input.value.trim();
+                } else if (text.includes('cpf')) {
+                    dados.cpf = input.value.trim();
+                } else if (text.includes('telefone') || text.includes('tel')) {
+                    dados.telefone = input.value.trim();
+                } else if (text.includes('email')) {
+                    dados.email = input.value.trim();
+                } else if (text.includes('endereço') || text.includes('endereco') || text.includes('rua')) {
+                    dados.endereco = input.value.trim();
+                } else if (index === 0 && !dados.nome) {
+                    // Primeiro input sem identificação = nome
+                    dados.nome = input.value.trim();
+                } else if (index === 1 && !dados.cpf) {
+                    // Segundo input = CPF
+                    dados.cpf = input.value.trim();
+                }
+            });
+
+            // Data de nascimento
+            if (dateInput) {
+                dados.dataNascimento = dateInput.value;
+            }
+
+            // Convênio
+            if (select) {
+                dados.convenio = select.value || 'Particular';
+            }
+
+            // Observações
+            if (textarea) {
+                dados.observacoes = textarea.value.trim();
+            }
+
+            console.log('📋 Dados capturados:', dados);
+            return dados;
+        }
+
+        // ============ SALVAR PACIENTE ============
         function salvarPac(e) {
             if (e) e.preventDefault();
             console.log('💾 salvarPac() chamado');
 
-            // Capturar campos - usando seletores mais específicos
-            const nome = document.querySelector('input[name="nome"]')?.value ||
-                document.querySelector('input[placeholder*="Nome"]')?.value ||
-                document.querySelectorAll('input')[0]?.value || '';
-
-            const cpf = document.querySelector('input[name="cpf"]')?.value ||
-                document.querySelector('input[placeholder="CPF"]')?.value ||
-                document.querySelectorAll('input')[1]?.value || '';
-
-            const dataNasc = document.querySelector('input[name="dataNascimento"]')?.value ||
-                document.querySelector('input[type="date"]')?.value || '';
-
-            const telefone = document.querySelector('input[name="telefone"]')?.value ||
-                document.querySelector('input[placeholder*="Telefone"]')?.value ||
-                document.querySelectorAll('input')[2]?.value || '';
-
-            const email = document.querySelector('input[name="email"]')?.value ||
-                document.querySelector('input[type="email"]')?.value ||
-                document.querySelector('input[placeholder*="Email"]')?.value || '';
-
-            const convenio = document.querySelector('select[name="convenio"]')?.value ||
-                document.querySelector('select')?.value || 'Particular';
-
-            const endereco = document.querySelector('input[name="endereco"]')?.value ||
-                document.querySelector('input[placeholder*="Endereço"]')?.value || '';
-
-            const obs = document.querySelector('textarea[name="observacoes"]')?.value ||
-                document.querySelector('textarea[placeholder*="Observações"]')?.value ||
-                document.querySelector('textarea')?.value || '';
-
-            const dados = {
-                nome: nome.trim(),
-                cpf: cpf.trim(),
-                dataNascimento: dataNasc,
-                telefone: telefone.trim(),
-                email: email.trim(),
-                convenio: convenio,
-                endereco: endereco.trim(),
-                observacoes: obs.trim()
-            };
-
-            console.log('📋 Dados capturados:', dados);
+            const dados = capturarDadosForm();
 
             // Validação
             if (!dados.nome || !dados.cpf) {
-                alert('⚠️ Nome e CPF são obrigatórios!');
+                alert('⚠️ Nome e CPF são obrigatórios!\n\nVerifique se preencheu os campos corretamente.');
+                console.log('❌ Validação falhou:', { nome: dados.nome, cpf: dados.cpf });
                 return;
             }
 
-            // Salvar
-            salvarPaciente(dados);
+            console.log('✅ Validação OK, enviando...');
+            enviarDadosAPI(dados);
         }
 
-        // Função interna que faz o POST
-        async function salvarPaciente(dados) {
+        async function enviarDadosAPI(dados) {
             try {
-                console.log('📤 POST /api/pacientes', dados);
+                console.log('📤 POST /api/pacientes:', dados);
+
                 const res = await fetch(`${API_BASE}/api/pacientes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -764,18 +795,19 @@
                 console.log('📥 Resposta:', result);
 
                 if (res.ok && result.success) {
-                    alert('✅ Paciente cadastrado!');
+                    alert('✅ Paciente cadastrado com sucesso!');
                     fecharModal();
                     carregarPacientes();
                 } else {
-                    alert('❌ ' + (result.message || 'Erro ao salvar'));
+                    alert('❌ Erro: ' + (result.message || 'Falha ao salvar'));
                 }
             } catch (err) {
-                console.error('❌ Erro:', err);
-                alert('❌ Erro de conexão: ' + err.message);
+                console.error('❌ Erro de rede:', err);
+                alert('❌ Erro de conexão: ' + err.message + '\n\nVerifique se o backend está online.');
             }
         }
 
+        // ============ CARREGAR PACIENTES ============
         async function carregarPacientes(busca = '') {
             try {
                 const url = busca
@@ -786,11 +818,9 @@
                 const res = await fetch(url);
                 const json = await res.json();
 
-                console.log('📦 API:', json);
+                console.log('📦 API response:', json);
 
-                const tbody = document.querySelector('table tbody') ||
-                    document.querySelector('tbody');
-
+                const tbody = document.querySelector('table tbody') || document.querySelector('tbody');
                 if (!tbody) {
                     console.error('❌ tbody não encontrado');
                     return;
@@ -801,7 +831,7 @@
         <tr>
           <td colspan="5" style="text-align:center; padding:20px; color:#999;">
             Nenhum paciente encontrado<br>
-            <small>Adicione um novo paciente ou ajuste os filtros de busca.</small>
+            <small>Adicione um novo paciente.</small>
           </td>
         </tr>
       `;
@@ -821,7 +851,7 @@
     `).join('');
 
             } catch (err) {
-                console.error('❌ Erro carregar:', err);
+                console.error('❌ Erro:', err);
             }
         }
 
@@ -832,45 +862,35 @@
                 const { data } = await res.json();
 
                 // Preencher campos
-                const inputs = document.querySelectorAll('input');
-                const selects = document.querySelectorAll('select');
-                const textareas = document.querySelectorAll('textarea');
+                const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]');
+                const dateInput = document.querySelector('input[type="date"]');
+                const select = document.querySelector('select');
+                const textarea = document.querySelector('textarea');
 
                 if (inputs[0]) inputs[0].value = data.nome || '';
                 if (inputs[1]) inputs[1].value = data.cpf || '';
-                if (inputs[2]) inputs[2].value = data.dataNascimento?.split('T')[0] || '';
-                if (inputs[3]) inputs[3].value = data.telefone || '';
-                if (inputs[4]) inputs[4].value = data.email || '';
-                if (selects[0]) selects[0].value = data.convenio || 'Particular';
-                if (inputs[5]) inputs[5].value = data.endereco || '';
-                if (textareas[0]) textareas[0].value = data.observacoes || '';
+                if (dateInput) dateInput.value = data.dataNascimento?.split('T')[0] || '';
+                if (inputs[2]) inputs[2].value = data.telefone || '';
+                if (inputs[3]) inputs[3].value = data.email || '';
+                if (select) select.value = data.convenio || 'Particular';
+                if (inputs[4]) inputs[4].value = data.endereco || '';
+                if (textarea) textarea.value = data.observacoes || '';
 
                 // Mudar form para edição
                 const form = document.querySelector('form');
                 form.onsubmit = async (e) => {
                     e.preventDefault();
-                    await atualizarPaciente(id);
+                    const dadosAtualizados = capturarDadosForm();
+                    await atualizarPaciente(id, dadosAtualizados);
                 };
 
                 abrirModal();
             } catch (err) {
-                alert('❌ Erro ao carregar');
+                alert('❌ Erro ao carregar paciente');
             }
         }
 
-        async function atualizarPaciente(id) {
-            const inputs = document.querySelectorAll('input');
-            const dados = {
-                nome: inputs[0]?.value || '',
-                cpf: inputs[1]?.value || '',
-                dataNascimento: inputs[2]?.value || '',
-                telefone: inputs[3]?.value || '',
-                email: inputs[4]?.value || '',
-                convenio: document.querySelector('select')?.value || 'Particular',
-                endereco: inputs[5]?.value || '',
-                observacoes: document.querySelector('textarea')?.value || ''
-            };
-
+        async function atualizarPaciente(id, dados) {
             try {
                 const res = await fetch(`${API_BASE}/api/pacientes/${id}`, {
                     method: 'PUT',
@@ -880,12 +900,12 @@
                 const result = await res.json();
 
                 if (result.success) {
-                    alert('✅ Atualizado!');
+                    alert('✅ Paciente atualizado!');
                     fecharModal();
                     carregarPacientes();
                 }
             } catch (err) {
-                alert('❌ Erro');
+                alert('❌ Erro ao atualizar');
             }
         }
 
@@ -900,14 +920,17 @@
 
             carregarPacientes();
 
-            // Busca
-            const busca = document.querySelector('input[placeholder="Buscar"]');
-            if (busca) {
-                let t;
-                busca.addEventListener('input', () => { clearTimeout(t); t = setTimeout(filtrar, 300); });
+            // Busca em tempo real
+            const buscaInput = document.querySelector('input[placeholder="Buscar"]');
+            if (buscaInput) {
+                let timeout;
+                buscaInput.addEventListener('input', () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(filtrar, 300);
+                });
             }
 
-            // Form submit - usa salvarPac
+            // Form submit
             const form = document.querySelector('form');
             if (form) {
                 form.onsubmit = salvarPac;
@@ -920,11 +943,10 @@
             });
         });
 
-        // Exportar TODAS as funções
+        // Exportar funções globais
         window.abrirModal = abrirModal;
         window.fecharModal = fecharModal;
         window.salvarPac = salvarPac;
-        window.salvarPaciente = salvarPaciente;
         window.carregarPacientes = carregarPacientes;
         window.editarPaciente = editarPaciente;
         window.filtrar = filtrar;
