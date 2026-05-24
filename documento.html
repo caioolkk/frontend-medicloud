@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,18 +19,31 @@
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --radius: 8px;
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        body { background: var(--bg-main); color: var(--text-main); line-height: 1.5; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
 
         /* Layout */
-        .layout-docs { display: flex; min-height: 100vh; }
-        
+        .layout-docs {
+            display: flex;
+            min-height: 100vh;
+        }
+
         /* Sidebar */
         .sidebar-docs {
             width: 280px;
@@ -44,6 +58,7 @@
             position: sticky;
             top: 70px;
         }
+
         .sidebar-title {
             font-size: 0.75rem;
             text-transform: uppercase;
@@ -52,6 +67,7 @@
             margin: 10px 0 5px 10px;
             font-weight: 600;
         }
+
         .sidebar-item {
             display: flex;
             align-items: center;
@@ -62,8 +78,17 @@
             transition: var(--transition);
             border: 1px solid transparent;
         }
-        .sidebar-item:hover { background: var(--primary-light); border-color: #dbeafe; }
-        .sidebar-item.ativo { background: var(--primary-light); border-color: var(--primary); }
+
+        .sidebar-item:hover {
+            background: var(--primary-light);
+            border-color: #dbeafe;
+        }
+
+        .sidebar-item.ativo {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
         .sidebar-icon {
             width: 36px;
             height: 36px;
@@ -75,9 +100,22 @@
             justify-content: center;
             font-size: 1rem;
         }
-        .sidebar-info { flex: 1; }
-        .sidebar-info h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
-        .sidebar-info p { font-size: 0.75rem; color: var(--text-muted); }
+
+        .sidebar-info {
+            flex: 1;
+        }
+
+        .sidebar-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .sidebar-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
         .sidebar-count {
             background: var(--border);
             color: var(--text-muted);
@@ -88,15 +126,27 @@
         }
 
         /* Main Content */
-        .main-docs { flex: 1; padding: 24px; }
+        .main-docs {
+            flex: 1;
+            padding: 24px;
+        }
+
         .module-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        .module-header h2 { font-size: 1.5rem; font-weight: 700; }
-        .module-actions { display: flex; gap: 10px; }
+
+        .module-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 10px;
+        }
 
         .btn {
             padding: 10px 16px;
@@ -110,12 +160,40 @@
             transition: var(--transition);
             font-size: 0.9rem;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        .btn-secondary { background: white; border: 1px solid var(--border); color: var(--text-main); }
-        .btn-secondary:hover { background: #f8fafc; }
-        .btn-icon { padding: 8px; border-radius: 6px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
-        .btn-icon:hover { color: var(--primary); border-color: var(--primary); }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        .btn-icon {
+            padding: 8px;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-icon:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
 
         /* Filters & Search */
         .filters-bar {
@@ -128,6 +206,7 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
+
         .search-input {
             flex: 1;
             min-width: 250px;
@@ -137,7 +216,13 @@
             font-size: 0.9rem;
             transition: var(--transition);
         }
-        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
         .filter-select {
             padding: 10px;
             border: 1px solid var(--border);
@@ -155,72 +240,297 @@
             overflow: hidden;
             box-shadow: var(--shadow-sm);
         }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background: #f8fafc; font-weight: 600; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        tr:hover { background: #f8fafc; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
         .badge {
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
-        .badge-success { background: #d1fae5; color: #065f46; }
-        .badge-warning { background: #fef3c7; color: #92400e; }
-        .badge-danger { background: #fee2e2; color: #991b1b; }
-        .badge-info { background: #dbeafe; color: #1e40af; }
-        .table-actions { display: flex; gap: 6px; }
-        .action-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); background: white; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: var(--transition); }
-        .action-btn:hover { color: var(--primary); border-color: var(--primary); }
-        .action-btn.delete:hover { color: var(--danger); border-color: var(--danger); }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .action-btn.delete:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
 
         /* Form Modal */
         .modal-overlay {
-            position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
-            display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: var(--transition);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
         }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
         .modal-content {
-            background: white; width: 90%; max-width: 700px; border-radius: 12px; padding: 24px; box-shadow: var(--shadow-md); transform: translateY(10px); transition: var(--transition);
+            background: white;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            transform: translateY(10px);
+            transition: var(--transition);
         }
-        .modal-overlay.active .modal-content { transform: translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h3 { font-size: 1.2rem; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
-        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group.full { grid-column: 1 / -1; }
-        .form-group label { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; transition: var(--transition);
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-        .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
 
         /* Loading & Toast */
-        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; z-index: 2000; visibility: hidden; opacity: 0; transition: var(--transition); }
-        .loading-overlay.active { visibility: visible; opacity: 1; }
-        .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .toast {
-            position: fixed; bottom: 24px; right: 24px; background: white; padding: 16px 20px; border-radius: 8px; box-shadow: var(--shadow-md); border-left: 4px solid var(--success); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000;
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            visibility: hidden;
+            opacity: 0;
+            transition: var(--transition);
         }
-        .toast.show { transform: translateX(0); }
-        .toast.error { border-left-color: var(--danger); }
-        .toast-icon { font-size: 1.2rem; color: var(--success); }
-        .toast.error .toast-icon { color: var(--danger); }
+
+        .loading-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--success);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+            color: var(--success);
+        }
+
+        .toast.error .toast-icon {
+            color: var(--danger);
+        }
 
         /* Empty State */
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-        .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
 
         @media (max-width: 900px) {
-            .sidebar-docs { width: 70px; padding: 20px 10px; }
-            .sidebar-info, .sidebar-count { display: none; }
-            .form-grid { grid-template-columns: 1fr; }
+            .sidebar-docs {
+                width: 70px;
+                padding: 20px 10px;
+            }
+
+            .sidebar-info,
+            .sidebar-count {
+                display: none;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- Loading Overlay -->
@@ -263,13 +573,16 @@
             <div class="module-header">
                 <h2 id="moduleTitle">Prontuários</h2>
                 <div class="module-actions">
-                    <button class="btn btn-secondary" onclick="exportarDados()"><i class="fa-solid fa-download"></i> Exportar</button>
-                    <button class="btn btn-primary" onclick="abrirFormulario()"><i class="fa-solid fa-plus"></i> Novo</button>
+                    <button class="btn btn-secondary" onclick="exportarDados()"><i class="fa-solid fa-download"></i>
+                        Exportar</button>
+                    <button class="btn btn-primary" onclick="abrirFormulario()"><i class="fa-solid fa-plus"></i>
+                        Novo</button>
                 </div>
             </div>
-            
+
             <div class="filters-bar">
-                <input type="text" class="search-input" placeholder="Buscar por nome, código ou descrição..." oninput="filtrarDados(this.value)">
+                <input type="text" class="search-input" placeholder="Buscar por nome, código ou descrição..."
+                    oninput="filtrarDados(this.value)">
                 <select class="filter-select" id="filtroStatus" onchange="filtrarDados()">
                     <option value="">Todos os status</option>
                     <option value="ativo">Ativo</option>
@@ -296,373 +609,215 @@
                 </div>
             </div>
         </main>
-            <div class="logout-btn" onclick="sair()">
-                 <i class="fa-solid fa-right-from-bracket"></i> Sair
-            </div>
+        <div class="logout-btn" onclick="sair()">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair
+        </div>
     </div>
 
     <script>
-        const API = "http://localhost:5000/api";
-        const TOKEN = localStorage.getItem("token");
+        // ============ CONFIG ============
+        const API_BASE = 'https://medicloud-backend-wy7s.onrender.com';
 
-        // Configuração dos 10 módulos
-        const MODULOS = {
-            prontuarios: {
-                nome: "Prontuários",
-                icone: "fa-file-medical",
-                desc: "Registros clínicos completos",
-                endpoint: "/prontuarios",
-                cols: ["Paciente", "Médico", "Diagnóstico", "Data", "Status", "Ações"],
-                form: [
-                    { id: "paciente", label: "Paciente", type: "text", required: true },
-                    { id: "medico", label: "Médico Responsável", type: "text", required: true },
-                    { id: "diagnostico", label: "Diagnóstico", type: "text", required: true },
-                    { id: "sintomas", label: "Sintomas", type: "textarea", full: true },
-                    { id: "cid", label: "CID", type: "text" },
-                    { id: "evolucao", label: "Evolução Clínica", type: "textarea", full: true },
-                    { id: "data", label: "Data", type: "date" }
-                ]
-            },
-            exames: {
-                nome: "Exames",
-                icone: "fa-microscope",
-                desc: "Resultados laboratoriais e imagem",
-                endpoint: "/exames",
-                cols: ["Paciente", "Tipo", "Laboratório", "Data", "Status", "Ações"],
-                form: [
-                    { id: "paciente", label: "Paciente", type: "text", required: true },
-                    { id: "tipo", label: "Tipo de Exame", type: "select", options: ["Hemograma", "Raio-X", "Tomografia", "Ultrassom", "Ressonância", "ECG"], required: true },
-                    { id: "laboratorio", label: "Laboratório/Clínica", type: "text" },
-                    { id: "status", label: "Status", type: "select", options: ["Pendente", "Concluído", "Arquivado"] },
-                    { id: "resultado", label: "Resultado", type: "textarea", full: true },
-                    { id: "arquivo", label: "Anexar Arquivo (PDF/IMG)", type: "file", full: true }
-                ]
-            },
-            prescricoes: {
-                nome: "Prescrições",
-                icone: "fa-pills",
-                desc: "Medicações e tratamentos",
-                endpoint: "/prescricoes",
-                cols: ["Paciente", "Medicamento", "Dosagem", "Frequência", "Médico", "Ações"],
-                form: [
-                    { id: "paciente", label: "Paciente", type: "text", required: true },
-                    { id: "medicamento", label: "Medicamento", type: "text", required: true },
-                    { id: "dosagem", label: "Dosagem", type: "text", required: true },
-                    { id: "frequencia", label: "Frequência", type: "text", required: true },
-                    { id: "horarios", label: "Horários", type: "text" },
-                    { id: "crm", label: "CRM Médico", type: "text", required: true },
-                    { id: "obs", label: "Observações", type: "textarea", full: true }
-                ]
-            },
-            relatorios: {
-                nome: "Relatórios",
-                icone: "fa-chart-line",
-                desc: "Análises e métricas",
-                endpoint: "/relatorios",
-                cols: ["Tipo", "Período", "Gerado por", "Data", "Formato", "Ações"],
-                form: [
-                    { id: "tipo", label: "Tipo de Relatório", type: "select", options: ["Atendimento", "Exames", "Pacientes", "Médicos", "Custos", "Produtividade"], required: true },
-                    { id: "periodoInicio", label: "Data Início", type: "date" },
-                    { id: "periodoFim", label: "Data Fim", type: "date" },
-                    { id: "formato", label: "Formato Exportação", type: "select", options: ["PDF", "Excel", "CSV"] }
-                ]
-            },
-            anexos: {
-                nome: "Anexos",
-                icone: "fa-paperclip",
-                desc: "Arquivos e documentos externos",
-                endpoint: "/anexos",
-                cols: ["Nome", "Tipo", "Tamanho", "Enviado por", "Data", "Ações"],
-                form: [
-                    { id: "nome", label: "Nome do Arquivo", type: "text", required: true },
-                    { id: "categoria", label: "Categoria", type: "select", options: ["Contrato", "Documentação", "Imagem", "PDF", "Outro"] },
-                    { id: "arquivo", label: "Upload Arquivo", type: "file", required: true, full: true },
-                    { id: "descricao", label: "Descrição", type: "textarea", full: true }
-                ]
-            },
-            historico: {
-                nome: "Histórico Clínico",
-                icone: "fa-timeline",
-                desc: "Linha do tempo do paciente",
-                endpoint: "/historicos",
-                cols: ["Paciente", "Evento", "Profissional", "Data", "Observações", "Ações"],
-                form: [
-                    { id: "paciente", label: "Paciente", type: "text", required: true },
-                    { id: "evento", label: "Tipo de Evento", type: "select", options: ["Consulta", "Internação", "Cirurgia", "Procedimento", "Exame"], required: true },
-                    { id: "profissional", label: "Profissional", type: "text" },
-                    { id: "observacoes", label: "Observações", type: "textarea", full: true },
-                    { id: "data", label: "Data", type: "date" }
-                ]
-            },
-            atestados: {
-                nome: "Atestados",
-                icone: "fa-file-signature",
-                desc: "Afastamentos e declarações",
-                endpoint: "/atestados",
-                cols: ["Paciente", "Dias", "CID", "Médico", "Validade", "Ações"],
-                form: [
-                    { id: "paciente", label: "Paciente", type: "text", required: true },
-                    { id: "dias", label: "Dias de Afastamento", type: "number", required: true },
-                    { id: "cid", label: "CID", type: "text" },
-                    { id: "medico", label: "Médico Responsável", type: "text", required: true },
-                    { id: "validade", label: "Data de Validade", type: "date" },
-                    { id: "obs", label: "Observações", type: "textarea", full: true }
-                ]
-            },
-            encaminhamentos: {
-                nome: "Encaminhamentos",
-                icone: "fa-share-nodes",
-                desc: "Referências e especialistas",
-                endpoint: "/encaminhamentos",
-                cols: ["Paciente", "Especialista", "Motivo", "Status", "Data", "Ações"],
-                form: [
-                    { id: "paciente", label: "Paciente", type: "text", required: true },
-                    { id: "especialista", label: "Especialista/Clínica", type: "text", required: true },
-                    { id: "motivo", label: "Motivo", type: "textarea", required: true },
-                    { id: "status", label: "Status", type: "select", options: ["Enviado", "Aceito", "Concluído", "Cancelado"] },
-                    { id: "obs", label: "Observações", type: "textarea", full: true }
-                ]
-            },
-            alergias: {
-                nome: "Alergias",
-                icone: "fa-triangle-exclamation",
-                desc: "Alertas e reações adversas",
-                endpoint: "/alergias",
-                cols: ["Paciente", "Alergênico", "Gravidade", "Reação", "Data", "Ações"],
-                form: [
-                    { id: "paciente", label: "Paciente", type: "text", required: true },
-                    { id: "alergio", label: "Substância/Alergênico", type: "text", required: true },
-                    { id: "gravidade", label: "Nível de Risco", type: "select", options: ["Baixo", "Médio", "Alto", "Crítico"], required: true },
-                    { id: "reacao", label: "Descrição da Reação", type: "textarea", full: true },
-                    { id: "data", label: "Data de Registro", type: "date" }
-                ]
-            },
-            vacinas: {
-                nome: "Vacinas",
-                icone: "fa-syringe",
-                desc: "Carteira e controle vacinal",
-                endpoint: "/vacinas",
-                cols: ["Paciente", "Vacina", "Dose", "Data Aplicação", "Próxima Dose", "Ações"],
-                form: [
-                    { id: "paciente", label: "Paciente", type: "text", required: true },
-                    { id: "vacina", label: "Vacina", type: "text", required: true },
-                    { id: "dose", label: "Dose (1ª, 2ª, Reforço)", type: "text", required: true },
-                    { id: "dataAplicacao", label: "Data da Aplicação", type: "date" },
-                    { id: "proximaDose", label: "Próxima Dose", type: "date" },
-                    { id: "lote", label: "Lote do Fabricante", type: "text" }
-                ]
+        // ============ FUNÇÕES DE MODAL ============
+        function abrirModalDoc() {
+            console.log('🔘 Abrindo modal de documento...');
+            const modal = document.getElementById('modalNovoDocumento') ||
+                document.querySelector('.modal') ||
+                document.querySelector('[id*="modal"]');
+            if (modal) {
+                modal.style.display = 'flex';
+                carregarPacientesNoSelect(); // Carrega pacientes no dropdown ao abrir
+            } else {
+                console.error(' Modal não encontrado!');
             }
-        };
-
-        let moduloAtual = "prontuarios";
-        let dadosMock = {};
-        let dadosFiltrados = [];
-
-        // Inicialização
-        window.onload = () => {
-            renderizarSidebar();
-            carregarModulo(moduloAtual);
-        };
-
-        function renderizarSidebar() {
-            const sidebar = document.getElementById("sidebarDocs");
-            let html = `<div class="sidebar-title">Módulos</div>`;
-            for (const [key, mod] of Object.entries(MODULOS)) {
-                html += `
-                    <div class="sidebar-item ${key === moduloAtual ? 'ativo' : ''}" onclick="carregarModulo('${key}')">
-                        <div class="sidebar-icon"><i class="fa-solid ${mod.icone}"></i></div>
-                        <div class="sidebar-info">
-                            <h4>${mod.nome}</h4>
-                            <p>${mod.desc}</p>
-                        </div>
-                        <span class="sidebar-count" id="count-${key}">0</span>
-                    </div>
-                `;
-            }
-            sidebar.innerHTML = html;
         }
 
-        async function carregarModulo(key) {
-            moduloAtual = key;
-            document.getElementById("moduleTitle").innerText = MODULOS[key].nome;
-            renderizarSidebar(); // Atualiza estado ativo
-            mostrarLoading(true);
-
-            // Simula busca na API
-            // Em produção: fetch(`${API}${MODULOS[key].endpoint}`, { headers: { Authorization: `Bearer ${TOKEN}` } })
-            await new Promise(r => setTimeout(r, 600));
-
-            dadosMock[key] = gerarDadosMock(key);
-            dadosFiltrados = dadosMock[key];
-            renderizarTabela();
-            mostrarLoading(false);
+        function fecharModalDoc() {
+            const modal = document.getElementById('modalNovoDocumento') || document.querySelector('.modal');
+            if (modal) {
+                modal.style.display = 'none';
+                const form = document.getElementById('formNovoDocumento') || document.querySelector('form');
+                if (form) form.reset();
+            }
         }
 
-        function renderizarTabela() {
-            const thead = document.getElementById("tableHead");
-            const tbody = document.getElementById("tableBody");
-            const empty = document.getElementById("emptyState");
-            const cols = MODULOS[moduloAtual].cols;
+        // ============ CARREGAR PACIENTES NO SELECT ============
+        async function carregarPacientesNoSelect() {
+            try {
+                const res = await fetch(`${API_BASE}/api/pacientes`);
+                const { data, success } = await res.json();
+                const select = document.querySelector('select[name="pacienteId"]');
 
-            thead.innerHTML = `<tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
-            
-            if (dadosFiltrados.length === 0) {
-                tbody.innerHTML = "";
-                empty.style.display = "block";
+                if (select && success) {
+                    select.innerHTML = '<option value="">Selecione um paciente</option>' +
+                        data.map(p => `<option value="${p._id}">${p.nome}</option>`).join('');
+                }
+            } catch (err) {
+                console.error('❌ Erro ao carregar pacientes:', err);
+            }
+        }
+
+        // ============ CARREGAR DOCUMENTOS ============
+        async function carregarDocumentos(filtros = {}) {
+            try {
+                const params = new URLSearchParams();
+                if (filtros.status) params.append('status', filtros.status);
+                if (filtros.periodo) params.append('periodo', filtros.periodo);
+
+                const url = `${API_BASE}/api/documentos?${params}`;
+                console.log(' GET:', url);
+
+                const res = await fetch(url);
+                const { data, success } = await res.json();
+
+                const tbody = document.querySelector('table tbody') || document.querySelector('tbody');
+                if (!tbody) return;
+
+                if (!success || !data || data.length === 0) {
+                    tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align:center; padding:20px; color:#999;">
+            Nenhum registro encontrado<br>
+            <small>Adicione um novo registro ou ajuste os filtros.</small>
+          </td>
+        </tr>
+      `;
+                    return;
+                }
+
+                tbody.innerHTML = data.map(doc => `
+      <tr>
+        <td><strong>${doc.tipo}</strong></td>
+        <td>${doc.pacienteId?.nome || 'Paciente não vinculado'}</td>
+        <td>${new Date(doc.dataRegistro).toLocaleDateString('pt-BR')}</td>
+        <td><span style="background:#e8f5e9; color:#2e7d32; padding:4px 8px; border-radius:4px; font-size:12px;">${doc.status}</span></td>
+        <td>
+          <button onclick="editarDocumento('${doc._id}')" style="background:none; border:none; cursor:pointer;">✏️</button>
+          <button onclick="excluirDocumento('${doc._id}')" style="background:none; border:none; cursor:pointer; color:#d32f2f;">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+
+            } catch (err) {
+                console.error('❌ Erro ao carregar documentos:', err);
+            }
+        }
+
+        // ============ SALVAR DOCUMENTO ============
+        async function salvarDocumento(e) {
+            e.preventDefault();
+            console.log('💾 Salvando documento...');
+
+            const dados = {
+                pacienteId: document.querySelector('select[name="pacienteId"]')?.value,
+                tipo: document.querySelector('select[name="tipo"]')?.value,
+                conteudo: document.querySelector('textarea[name="conteudo"]')?.value,
+                status: document.querySelector('select[name="status"]')?.value || 'Ativo'
+            };
+
+            console.log('📋 Dados:', dados);
+
+            if (!dados.pacienteId || !dados.tipo) {
+                alert('️ Paciente e Tipo são obrigatórios!');
                 return;
             }
-            empty.style.display = "none";
 
-            tbody.innerHTML = dadosFiltrados.map((row, i) => `
-                <tr>
-                    ${Object.values(row).map(val => {
-                        if(val === 'Ativo' || val === 'Concluído' || val === 'Aceito') return `<td><span class="badge badge-success">${val}</span></td>`;
-                        if(val === 'Pendente' || val === 'Médio') return `<td><span class="badge badge-warning">${val}</span></td>`;
-                        if(val === 'Crítico' || val === 'Alto') return `<td><span class="badge badge-danger">${val}</span></td>`;
-                        return `<td>${val}</td>`;
-                    }).join('')}
-                    <td>
-                        <div class="table-actions">
-                            <button class="action-btn" title="Visualizar" onclick="visualizarItem(${i})"><i class="fa-solid fa-eye"></i></button>
-                            <button class="action-btn" title="Editar" onclick="editarItem(${i})"><i class="fa-solid fa-pen"></i></button>
-                            <button class="action-btn delete" title="Excluir" onclick="excluirItem(${i})"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function filtrarDados(busca = "") {
-            const termo = busca.toLowerCase();
-            const statusFiltro = document.getElementById("filtroStatus").value;
-            
-            dadosFiltrados = dadosMock[moduloAtual].filter(row => {
-                const matchBusca = Object.values(row).some(val => String(val).toLowerCase().includes(termo));
-                const matchStatus = !statusFiltro || row.status?.toLowerCase() === statusFiltro || row.gravidade?.toLowerCase() === statusFiltro;
-                return matchBusca && matchStatus;
-            });
-            renderizarTabela();
-        }
-
-        function abrirFormulario(editIndex = null) {
-            const modal = document.getElementById("modalForm");
-            const grid = document.getElementById("formGrid");
-            const titulo = document.getElementById("modalTitle");
-            const form = document.getElementById("formDinamico");
-            
-            form.reset();
-            grid.innerHTML = "";
-            titulo.innerText = editIndex !== null ? `Editar ${MODULOS[moduloAtual].nome}` : `Novo ${MODULOS[moduloAtual].nome}`;
-
-            MODULOS[moduloAtual].form.forEach(field => {
-                let html = `<div class="form-group ${field.full ? 'full' : ''}">`;
-                html += `<label>${field.label} ${field.required ? '<span style="color:var(--danger)">*</span>' : ''}</label>`;
-                
-                if (field.type === "select") {
-                    html += `<select id="${field.id}" ${field.required ? 'required' : ''}>
-                        <option value="">Selecione...</option>
-                        ${field.options.map(o => `<option value="${o}">${o}</option>`).join('')}
-                    </select>`;
-                } else if (field.type === "textarea") {
-                    html += `<textarea id="${field.id}" rows="3" ${field.required ? 'required' : ''}></textarea>`;
-                } else {
-                    html += `<input type="${field.type}" id="${field.id}" ${field.required ? 'required' : ''} ${field.type==='date'?'value="'+new Date().toISOString().split('T')[0]+'"':''}>`;
-                }
-                html += `</div>`;
-                grid.innerHTML += html;
-            });
-
-            // Se for edição, preenche
-            if (editIndex !== null) {
-                const item = dadosFiltrados[editIndex];
-                MODULOS[moduloAtual].form.forEach(field => {
-                    if(document.getElementById(field.id)) document.getElementById(field.id).value = item[field.id] || "";
+            try {
+                const res = await fetch(`${API_BASE}/api/documentos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
                 });
-            }
 
-            modal.classList.add("active");
+                const result = await res.json();
+                console.log('📥 Resposta:', result);
+
+                if (result.success) {
+                    alert('✅ Documento salvo!');
+                    fecharModalDoc();
+                    carregarDocumentos();
+                } else {
+                    alert('❌ ' + result.message);
+                }
+            } catch (err) {
+                console.error('❌ Erro de conexão:', err);
+                alert(' Erro ao salvar. Verifique o console.');
+            }
         }
 
-        async function salvarRegistro(e) {
-            e.preventDefault();
-            mostrarLoading(true);
-            
-            const dados = {};
-            MODULOS[moduloAtual].form.forEach(field => {
-                const el = document.getElementById(field.id);
-                if(el) dados[field.id] = el.value;
+        // ============ FILTROS ============
+        function aplicarFiltros() {
+            const filtros = {
+                status: document.querySelector('select[name="statusFiltro"]')?.value ||
+                    document.querySelector('select[name="status"]')?.value || '',
+                periodo: document.querySelector('select[name="periodo"]')?.value || ''
+            };
+
+            // Remove valores vazios
+            Object.keys(filtros).forEach(k => filtros[k] === '' && delete filtros[k]);
+            carregarDocumentos(filtros);
+        }
+
+        // ============ EDITAR / EXCLUIR (Básico) ============
+        async function editarDocumento(id) {
+            alert('✏️ Função de edição em breve. ID: ' + id);
+        }
+
+        async function excluirDocumento(id) {
+            if (!confirm('Excluir este documento?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/documentos/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    alert('✅ Removido!');
+                    carregarDocumentos();
+                }
+            } catch (err) { alert('❌ Erro ao excluir'); }
+        }
+
+        // ============ INICIALIZAÇÃO ============
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ Documento.html carregado');
+
+            // Carrega lista inicial
+            carregarDocumentos();
+
+            // Vincula filtros
+            document.querySelectorAll('select[name="statusFiltro"], select[name="status"], select[name="periodo"]').forEach(sel => {
+                sel.addEventListener('change', aplicarFiltros);
             });
 
-            // Simula POST na API
-            // await fetch(`${API}${MODULOS[moduloAtual].endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` }, body: JSON.stringify(dados) });
-            
-            await new Promise(r => setTimeout(r, 500));
-            dadosMock[moduloAtual].unshift({ ...dados, id: Date.now(), status: "Ativo", criadoEm: new Date().toLocaleDateString() });
-            
-            dadosFiltrados = dadosMock[moduloAtual];
-            renderizarTabela();
-            fecharModal();
-            mostrarLoading(false);
-            mostrarToast("Registro salvo com sucesso!");
-        }
-
-        function visualizarItem(index) {
-            mostrarToast("Visualizando detalhes (implementar modal de leitura)", true);
-        }
-
-        function editarItem(index) {
-            abrirFormulario(index);
-        }
-
-        async function excluirItem(index) {
-            if(!confirm("Tem certeza que deseja excluir este registro?")) return;
-            mostrarLoading(true);
-            // await fetch(`${API}${MODULOS[moduloAtual].endpoint}/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${TOKEN}` } });
-            await new Promise(r => setTimeout(r, 400));
-            dadosMock[moduloAtual].splice(index, 1);
-            dadosFiltrados = dadosMock[moduloAtual];
-            renderizarTabela();
-            mostrarLoading(false);
-            mostrarToast("Registro excluído!");
-        }
-
-        function fecharModal() {
-            document.getElementById("modalForm").classList.remove("active");
-        }
-
-        function mostrarLoading(show) {
-            document.getElementById("loadingOverlay").classList.toggle("active", show);
-        }
-
-        function mostrarToast(msg, isError = false) {
-            const toast = document.getElementById("toast");
-            document.getElementById("toastMsg").innerText = msg;
-            toast.className = `toast ${isError ? 'error' : ''} show`;
-            setTimeout(() => toast.classList.remove("show"), 3000);
-        }
-
-        function exportarDados() {
-            mostrarToast("Exportação em PDF/Excel iniciada...");
-        }
-                function sair() {
-            localStorage.removeItem("usuario");
-            localStorage.removeItem("token");
-            window.location.href = "dashboard.html";
-        }
-        // Gera dados mock para demonstração
-        function gerarDadosMock(key) {
-            const nomes = ["Ana Silva", "Carlos Souza", "Maria Oliveira", "João Pereira", "Fernanda Lima"];
-            const arr = [];
-            for(let i=0; i<8; i++) {
-                arr.push({
-            paciente: nomes[i % nomes.length],
-            status: ["Ativo", "Pendente", "Concluído", "Arquivado"][Math.floor(Math.random()*4)],
-            data: new Date().toLocaleDateString(),  // ✅ Adicionado "data:"
-            ...Object.fromEntries(MODULOS[key].form.filter(f => f.id !== 'arquivo' && f.id !== 'proximaDose').map(f => [f.id, f.options ? f.options[0] : `Dado ${f.id}`]))
-        });
+            // Vincula formulário
+            const form = document.getElementById('formNovoDocumento') || document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', salvarDocumento);
+                console.log('📝 Form vinculado');
             }
-            return arr;
-        }
+
+            // Botão "Novo" ou "+"
+            document.querySelectorAll('button, a').forEach(btn => {
+                if (btn.textContent.includes('Novo') || btn.textContent.includes('+') || btn.id?.includes('novo')) {
+                    btn.addEventListener('click', (e) => {
+                        if (btn.tagName === 'A') e.preventDefault();
+                        abrirModalDoc();
+                    });
+                }
+            });
+
+            // Fechar modal ao clicar fora
+            document.querySelectorAll('.modal').forEach(m => {
+                m.addEventListener('click', (e) => { if (e.target === m) fecharModalDoc(); });
+            });
+        });
+
+        // Exportar funções globais
+        window.abrirModalDoc = abrirModalDoc;
+        window.fecharModalDoc = fecharModalDoc;
+        window.carregarDocumentos = carregarDocumentos;
+        window.aplicarFiltros = aplicarFiltros;
+        window.editarDocumento = editarDocumento;
+        window.excluirDocumento = excluirDocumento;
     </script>
 </body>
+
 </html>
