@@ -664,7 +664,7 @@
     <!-- ============ SCRIPT CADASTRO PACIENTES ============ -->
     <script>
         // ============ CONFIG ============
-        const API_BASE = 'https://medicloud-backend-wy7s.onrender.com'; // Mesma origem do servidor
+        const API_BASE = 'https://medicloud-backend-wy7s.onrender.com';
 
         // ============ FUNÇÕES ============
 
@@ -672,7 +672,11 @@
         async function carregarPacientes(busca = '') {
             try {
                 const url = `${API_BASE}/api/pacientes${busca ? `?busca=${encodeURIComponent(busca)}` : ''}`;
+                console.log('Buscando:', url);
+
                 const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
                 const { data, success } = await res.json();
 
                 const tbody = document.querySelector('table tbody');
@@ -692,7 +696,7 @@
 
                 tbody.innerHTML = data.map(p => `
       <tr>
-        <td>${escapeHtml(p.nome)}</td>
+        <td>${p.nome || '-'}</td>
         <td>${formatarCPF(p.cpf)}</td>
         <td>${p.telefone || '-'}</td>
         <td><span style="background:#e3f2fd; color:#1976d2; padding:4px 8px; border-radius:4px; font-size:12px;">${p.convenio || 'Particular'}</span></td>
@@ -707,9 +711,15 @@
                 console.error('Erro ao carregar:', err);
                 const tbody = document.querySelector('table tbody');
                 if (tbody) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Erro ao carregar pacientes</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Erro ao carregar pacientes. Verifique se o backend está online.</td></tr>';
                 }
             }
+        }
+
+        // ============ FUNÇÃO FILTRAR (que estava faltando!) ============
+        function filtrar(busca) {
+            const valor = busca || document.querySelector('input[placeholder="Buscar"]')?.value || '';
+            carregarPacientes(valor);
         }
 
         // Salvar novo paciente
@@ -734,7 +744,6 @@
                 observacoes: document.querySelector('textarea[name="observacoes"]')?.value?.trim()
             };
 
-            // Validação básica
             if (!dados.nome || !dados.cpf) {
                 alert('⚠️ Nome e CPF são obrigatórios!');
                 if (btnSalvar) { btnSalvar.disabled = false; btnSalvar.textContent = textoOriginal; }
@@ -750,26 +759,12 @@
                 const result = await res.json();
 
                 if (result.success) {
-                    // Mostrar mensagem de sucesso (se existir o elemento)
-                    const msg = document.querySelector('.alert-success') ||
-                        document.querySelector('[class*="sucesso"]');
-                    if (msg) {
-                        msg.textContent = 'Paciente cadastrado com sucesso!';
-                        msg.style.display = 'block';
-                        setTimeout(() => msg.style.display = 'none', 3000);
-                    } else {
-                        alert('✅ Paciente cadastrado!');
-                    }
-
-                    // Fechar modal
+                    alert('✅ Paciente cadastrado!');
                     fecharModal('modalNovoPaciente');
-
-                    // Recarregar lista e limpar form
                     carregarPacientes();
                     e.target.reset();
-
                 } else {
-                    alert('❌ ' + (result.message || 'Erro ao cadastrar'));
+                    alert('❌ ' + result.message);
                 }
             } catch (err) {
                 alert('❌ Erro de conexão ao salvar paciente');
@@ -779,7 +774,7 @@
             }
         }
 
-        // Editar paciente (abre modal com dados)
+        // Editar paciente
         async function editarPaciente(id) {
             try {
                 const res = await fetch(`${API_BASE}/api/pacientes/${id}`);
@@ -790,9 +785,7 @@
                     return;
                 }
 
-                // Preencher campos do modal
-                const modal = document.getElementById('modalNovoPaciente') ||
-                    document.querySelector('.modal');
+                const modal = document.getElementById('modalNovoPaciente') || document.querySelector('.modal');
                 if (modal) {
                     document.querySelector('input[name="nome"]').value = data.nome || '';
                     document.querySelector('input[name="cpf"]').value = data.cpf || '';
@@ -803,7 +796,6 @@
                     document.querySelector('input[name="endereco"]').value = data.endereco || '';
                     document.querySelector('textarea[name="observacoes"]').value = data.observacoes || '';
 
-                    // Alterar ação do form para PUT
                     const form = document.querySelector('#formNovoPaciente');
                     form.onsubmit = async (e) => {
                         e.preventDefault();
@@ -819,7 +811,7 @@
             }
         }
 
-        // Atualizar paciente existente
+        // Atualizar paciente
         async function atualizarPaciente(id, e) {
             e.preventDefault();
 
@@ -846,7 +838,6 @@
                     alert('✅ Paciente atualizado!');
                     fecharModal('modalNovoPaciente');
                     carregarPacientes();
-                    // Resetar form para modo criar
                     document.querySelector('#formNovoPaciente').onsubmit = salvarPaciente;
                 } else {
                     alert('❌ ' + result.message);
@@ -858,14 +849,10 @@
 
         // Excluir paciente
         async function excluirPaciente(id) {
-            if (!confirm('Tem certeza que deseja excluir este paciente?\n\nEsta ação não pode ser desfeita.')) {
-                return;
-            }
+            if (!confirm('Tem certeza que deseja excluir este paciente?')) return;
 
             try {
-                const res = await fetch(`${API_BASE}/api/pacientes/${id}`, {
-                    method: 'DELETE'
-                });
+                const res = await fetch(`${API_BASE}/api/pacientes/${id}`, { method: 'DELETE' });
                 const result = await res.json();
 
                 if (result.success) {
@@ -879,35 +866,22 @@
             }
         }
 
-        // ============ UTILITÁRIOS ============
-
+        // Utilitários
         function fecharModal(modalId) {
-            const modal = document.getElementById(modalId) ||
-                document.querySelector('.modal');
+            const modal = document.getElementById(modalId) || document.querySelector('.modal');
             if (modal) {
                 modal.style.display = 'none';
-                // Resetar form ao fechar
                 const form = document.querySelector('#formNovoPaciente');
                 if (form) {
                     form.reset();
-                    form.onsubmit = salvarPaciente; // Resetar para modo criar
+                    form.onsubmit = salvarPaciente;
                 }
             }
         }
 
         function abrirModal(modalId) {
-            const modal = document.getElementById(modalId) ||
-                document.querySelector('.modal');
-            if (modal) {
-                modal.style.display = 'flex';
-            }
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            const modal = document.getElementById(modalId) || document.querySelector('.modal');
+            if (modal) modal.style.display = 'flex';
         }
 
         function formatarCPF(cpf) {
@@ -916,68 +890,36 @@
         }
 
         // ============ EVENTOS ============
-
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Carregar lista inicial
+            // Carregar lista inicial
             carregarPacientes();
 
-            // 2. Busca em tempo real
+            // Busca em tempo real
             const buscaInput = document.querySelector('input[placeholder="Buscar"]');
             if (buscaInput) {
                 let timeout;
                 buscaInput.addEventListener('input', (e) => {
                     clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        carregarPacientes(e.target.value);
-                    }, 300);
+                    timeout = setTimeout(() => filtrar(e.target.value), 300);
                 });
             }
 
-            // 3. Submit do formulário de novo paciente
+            // Submit do formulário
             const form = document.querySelector('#formNovoPaciente');
             if (form) {
                 form.addEventListener('submit', salvarPaciente);
             }
 
-            // 4. Botão "Novo Paciente" (abre modal)
-            const btnNovo = document.querySelector('[onclick*="modal"]') ||
-                document.querySelector('button') ||
-                document.querySelector('a[href="#"]');
-            if (btnNovo) {
-                btnNovo.addEventListener('click', (e) => {
-                    // Se for link, prevenir default
-                    if (btnNovo.tagName === 'A') e.preventDefault();
-                    // Resetar form para modo criar
-                    const form = document.querySelector('#formNovoPaciente');
-                    if (form) {
-                        form.reset();
-                        form.onsubmit = salvarPaciente;
-                    }
-                    abrirModal('modalNovoPaciente');
-                });
-            }
-
-            // 5. Fechar modal ao clicar fora ou no X
+            // Fechar modal ao clicar fora
             document.querySelectorAll('.modal').forEach(modal => {
-                // Fechar no X
-                modal.querySelector('[onclick*="fechar"], .modal-close, button[type="button"]')?.addEventListener('click', () => {
-                    fecharModal(modal.id);
-                });
-                // Fechar ao clicar fora do conteúdo
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) fecharModal(modal.id);
                 });
             });
-
-            // 6. Logout (se existir botão Sair)
-            document.querySelector('[href*="sair"], [onclick*="sair"]')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                localStorage.clear();
-                window.location.href = '/';
-            });
         });
 
-        // ============ EXPORTAR FUNÇÕES GLOBAIS (para onclick no HTML) ============
+        // Exportar funções globalmente
+        window.filtrar = filtrar;
         window.editarPaciente = editarPaciente;
         window.excluirPaciente = excluirPaciente;
         window.fecharModal = fecharModal;
