@@ -615,61 +615,114 @@
     </div>
 
     <script>
-        const API = "http://localhost:10000/api";
-        // produção:
-        // const API = "https://medicloud-backend-wy7s.onrender.com/api";
+        const API = "https://medicloud-backend-wy7s.onrender.com/api";
 
         const TOKEN = localStorage.getItem("token");
 
+        // =========================
+        // CONFIG MÓDULOS
+        // =========================
+
         const MODULOS = {
+
             prontuarios: {
                 nome: "Prontuários",
                 icone: "fa-file-medical",
                 desc: "Registros clínicos completos",
-                endpoint: "/documentos",
                 tipoDocumento: "Prontuário",
-                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"],
-                form: [
-                    { id: "pacienteId", label: "Paciente", type: "select-pacientes", required: true },
-                    { id: "conteudo", label: "Conteúdo", type: "textarea", full: true, required: true },
-                    { id: "status", label: "Status", type: "select", options: ["Ativo", "Pendente", "Arquivado"] }
-                ]
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
             },
 
             exames: {
                 nome: "Exames",
                 icone: "fa-microscope",
                 desc: "Resultados laboratoriais",
-                endpoint: "/documentos",
                 tipoDocumento: "Exame",
-                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"],
-                form: [
-                    { id: "pacienteId", label: "Paciente", type: "select-pacientes", required: true },
-                    { id: "conteudo", label: "Resultado do exame", type: "textarea", full: true, required: true },
-                    { id: "status", label: "Status", type: "select", options: ["Ativo", "Pendente", "Arquivado"] }
-                ]
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
             },
 
             prescricoes: {
                 nome: "Prescrições",
                 icone: "fa-pills",
                 desc: "Receitas médicas",
-                endpoint: "/documentos",
                 tipoDocumento: "Receita",
-                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"],
-                form: [
-                    { id: "pacienteId", label: "Paciente", type: "select-pacientes", required: true },
-                    { id: "conteudo", label: "Receita", type: "textarea", full: true, required: true },
-                    { id: "status", label: "Status", type: "select", options: ["Ativo", "Pendente", "Arquivado"] }
-                ]
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
+            },
+
+            relatorios: {
+                nome: "Relatórios",
+                icone: "fa-chart-line",
+                desc: "Análises e métricas",
+                tipoDocumento: "Outro",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
+            },
+
+            anexos: {
+                nome: "Anexos",
+                icone: "fa-paperclip",
+                desc: "Arquivos médicos",
+                tipoDocumento: "Outro",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
+            },
+
+            historico: {
+                nome: "Histórico Clínico",
+                icone: "fa-timeline",
+                desc: "Eventos do paciente",
+                tipoDocumento: "Outro",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
+            },
+
+            atestados: {
+                nome: "Atestados",
+                icone: "fa-file-signature",
+                desc: "Declarações médicas",
+                tipoDocumento: "Outro",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
+            },
+
+            encaminhamentos: {
+                nome: "Encaminhamentos",
+                icone: "fa-share-nodes",
+                desc: "Referências médicas",
+                tipoDocumento: "Outro",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
+            },
+
+            alergias: {
+                nome: "Alergias",
+                icone: "fa-triangle-exclamation",
+                desc: "Reações adversas",
+                tipoDocumento: "Outro",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
+            },
+
+            vacinas: {
+                nome: "Vacinas",
+                icone: "fa-syringe",
+                desc: "Carteira vacinal",
+                tipoDocumento: "Outro",
+                cols: ["Paciente", "Tipo", "Conteúdo", "Data", "Status", "Ações"]
             }
         };
 
+        // =========================
+        // ESTADO
+        // =========================
+
         let moduloAtual = "prontuarios";
+
         let dadosBackend = [];
+
         let dadosFiltrados = [];
+
         let pacientes = [];
+
         let editandoId = null;
+
+        // =========================
+        // INIT
+        // =========================
 
         window.onload = async () => {
 
@@ -679,6 +732,10 @@
 
             carregarModulo(moduloAtual);
         };
+
+        // =========================
+        // PACIENTES
+        // =========================
 
         async function carregarPacientes() {
 
@@ -691,15 +748,17 @@
                 if (result.success) {
 
                     pacientes = result.data;
-
                 }
 
             } catch (err) {
 
-                console.error("Erro ao carregar pacientes", err);
-
+                console.error(err);
             }
         }
+
+        // =========================
+        // SIDEBAR
+        // =========================
 
         function renderizarSidebar() {
 
@@ -710,7 +769,8 @@
             for (const [key, mod] of Object.entries(MODULOS)) {
 
                 html += `
-                <div class="sidebar-item ${key === moduloAtual ? 'ativo' : ''}" onclick="carregarModulo('${key}')">
+                <div class="sidebar-item ${key === moduloAtual ? 'ativo' : ''}"
+                    onclick="carregarModulo('${key}')">
 
                     <div class="sidebar-icon">
                         <i class="fa-solid ${mod.icone}"></i>
@@ -721,7 +781,9 @@
                         <p>${mod.desc}</p>
                     </div>
 
-                    <span class="sidebar-count" id="count-${key}">0</span>
+                    <span class="sidebar-count" id="count-${key}">
+                        0
+                    </span>
 
                 </div>
             `;
@@ -729,6 +791,10 @@
 
             sidebar.innerHTML = html;
         }
+
+        // =========================
+        // CARREGAR MÓDULO
+        // =========================
 
         async function carregarModulo(key) {
 
@@ -743,25 +809,31 @@
 
             try {
 
-                const response = await fetch(`${API}/documentos`);
+                const response =
+                    await fetch(`${API}/documentos`);
 
-                const result = await response.json();
+                const result =
+                    await response.json();
 
                 if (!result.success) {
 
                     throw new Error(result.message);
-
                 }
 
                 dadosBackend = result.data
-                    .filter(doc => doc.tipo === MODULOS[key].tipoDocumento)
+                    .filter(doc =>
+                        doc.tipo === MODULOS[key].tipoDocumento
+                    )
                     .map(doc => ({
 
                         id: doc._id,
 
-                        paciente: doc.pacienteId?.nome || "Paciente removido",
+                        paciente:
+                            doc.pacienteId?.nome ||
+                            "Paciente removido",
 
-                        pacienteId: doc.pacienteId?._id || "",
+                        pacienteId:
+                            doc.pacienteId?._id || "",
 
                         tipo: doc.tipo,
 
@@ -769,7 +841,9 @@
 
                         status: doc.status,
 
-                        data: new Date(doc.dataRegistro).toLocaleDateString()
+                        data:
+                            new Date(doc.dataRegistro)
+                                .toLocaleDateString()
 
                     }));
 
@@ -788,37 +862,67 @@
             } finally {
 
                 mostrarLoading(false);
-
             }
         }
 
-        function atualizarContadores() {
+        // =========================
+        // CONTADORES
+        // =========================
 
-            for (const key of Object.keys(MODULOS)) {
+        async function atualizarContadores() {
 
-                const tipo = MODULOS[key].tipoDocumento;
+            try {
 
-                const count = dadosBackend.filter(x => x.tipo === tipo).length;
+                const response =
+                    await fetch(`${API}/documentos`);
 
-                const el = document.getElementById(`count-${key}`);
+                const result =
+                    await response.json();
 
-                if (el) {
+                if (!result.success) return;
 
-                    el.innerText = count;
+                for (const key of Object.keys(MODULOS)) {
 
+                    const tipo =
+                        MODULOS[key].tipoDocumento;
+
+                    const count =
+                        result.data.filter(x =>
+                            x.tipo === tipo
+                        ).length;
+
+                    const el =
+                        document.getElementById(`count-${key}`);
+
+                    if (el) {
+
+                        el.innerText = count;
+                    }
                 }
+
+            } catch (err) {
+
+                console.error(err);
             }
         }
+
+        // =========================
+        // TABELA
+        // =========================
 
         function renderizarTabela() {
 
-            const thead = document.getElementById("tableHead");
+            const thead =
+                document.getElementById("tableHead");
 
-            const tbody = document.getElementById("tableBody");
+            const tbody =
+                document.getElementById("tableBody");
 
-            const empty = document.getElementById("emptyState");
+            const empty =
+                document.getElementById("emptyState");
 
-            const cols = MODULOS[moduloAtual].cols;
+            const cols =
+                MODULOS[moduloAtual].cols;
 
             thead.innerHTML =
                 `<tr>${cols.map(c => `<th>${c}</th>`).join("")}</tr>`;
@@ -834,124 +938,139 @@
 
             empty.style.display = "none";
 
-            tbody.innerHTML = dadosFiltrados.map(row => `
+            tbody.innerHTML =
+                dadosFiltrados.map(row => `
 
-            <tr>
+                <tr>
 
-                <td>${row.paciente}</td>
+                    <td>${row.paciente}</td>
 
-                <td>${row.tipo}</td>
+                    <td>${row.tipo}</td>
 
-                <td>${row.conteudo}</td>
+                    <td>${row.conteudo || "-"}</td>
 
-                <td>${row.data}</td>
+                    <td>${row.data}</td>
 
-                <td>
-                    <span class="badge badge-success">
-                        ${row.status}
-                    </span>
-                </td>
+                    <td>
 
-                <td>
+                        <span class="badge badge-success">
+                            ${row.status}
+                        </span>
 
-                    <div class="table-actions">
+                    </td>
 
-                        <button class="action-btn"
-                            onclick="editarItem('${row.id}')">
+                    <td>
 
-                            <i class="fa-solid fa-pen"></i>
+                        <div class="table-actions">
 
-                        </button>
+                            <button class="action-btn"
+                                onclick="editarItem('${row.id}')">
 
-                        <button class="action-btn delete"
-                            onclick="excluirItem('${row.id}')">
+                                <i class="fa-solid fa-pen"></i>
 
-                            <i class="fa-solid fa-trash"></i>
+                            </button>
 
-                        </button>
+                            <button class="action-btn delete"
+                                onclick="excluirItem('${row.id}')">
 
-                    </div>
+                                <i class="fa-solid fa-trash"></i>
 
-                </td>
+                            </button>
 
-            </tr>
+                        </div>
 
-        `).join("");
+                    </td>
+
+                </tr>
+
+            `).join("");
         }
+
+        // =========================
+        // FORMULÁRIO
+        // =========================
 
         function abrirFormulario() {
 
             editandoId = null;
 
-            const modal = document.getElementById("modalForm");
+            const modal =
+                document.getElementById("modalForm");
 
-            const grid = document.getElementById("formGrid");
-
-            const titulo = document.getElementById("modalTitle");
-
-            titulo.innerText =
-                `Novo ${MODULOS[moduloAtual].nome}`;
+            const grid =
+                document.getElementById("formGrid");
 
             grid.innerHTML = "";
 
-            MODULOS[moduloAtual].form.forEach(field => {
+            document.getElementById("modalTitle")
+                .innerText =
+                `Novo ${MODULOS[moduloAtual].nome}`;
 
-                let html = `
-                <div class="form-group ${field.full ? 'full' : ''}">
-            `;
+            grid.innerHTML = `
 
-                html += `
-                <label>
-                    ${field.label}
-                </label>
-            `;
+            <div class="form-group">
 
-                if (field.type === "select") {
+                <label>Paciente</label>
 
-                    html += `
-                    <select id="${field.id}">
-                        ${field.options.map(op =>
-                        `<option value="${op}">${op}</option>`
-                    ).join("")}
-                    </select>
-                `;
+                <select id="pacienteId" required>
 
-                } else if (field.type === "select-pacientes") {
+                    <option value="">
+                        Selecione
+                    </option>
 
-                    html += `
-                    <select id="${field.id}" required>
+                    ${pacientes.map(p => `
 
-                        <option value="">
-                            Selecione um paciente
+                        <option value="${p._id}">
+                            ${p.nome}
                         </option>
 
-                        ${pacientes.map(p => `
-                            <option value="${p._id}">
-                                ${p.nome}
-                            </option>
-                        `).join("")}
+                    `).join("")}
 
-                    </select>
-                `;
+                </select>
 
-                } else if (field.type === "textarea") {
+            </div>
 
-                    html += `
-                    <textarea
-                        id="${field.id}"
-                        rows="4">
-                    </textarea>
-                `;
+            <div class="form-group">
 
-                }
+                <label>Status</label>
 
-                html += `</div>`;
+                <select id="status">
 
-                grid.innerHTML += html;
-            });
+                    <option value="Ativo">
+                        Ativo
+                    </option>
+
+                    <option value="Pendente">
+                        Pendente
+                    </option>
+
+                    <option value="Arquivado">
+                        Arquivado
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="form-group full">
+
+                <label>Conteúdo</label>
+
+                <textarea
+                    id="conteudo"
+                    rows="5"
+                    required>
+                </textarea>
+
+            </div>
+        `;
 
             modal.classList.add("active");
         }
+
+        // =========================
+        // SALVAR
+        // =========================
 
         async function salvarRegistro(e) {
 
@@ -961,65 +1080,60 @@
 
             try {
 
-                const pacienteId =
-                    document.getElementById("pacienteId").value;
-
-                const conteudo =
-                    document.getElementById("conteudo").value;
-
-                const status =
-                    document.getElementById("status").value;
-
                 const body = {
 
-                    pacienteId,
+                    pacienteId:
+                        document.getElementById("pacienteId").value,
 
-                    tipo: MODULOS[moduloAtual].tipoDocumento,
+                    tipo:
+                        MODULOS[moduloAtual].tipoDocumento,
 
-                    conteudo,
+                    conteudo:
+                        document.getElementById("conteudo").value,
 
-                    status
-
+                    status:
+                        document.getElementById("status").value
                 };
 
                 let response;
 
                 if (editandoId) {
 
-                    response = await fetch(`${API}/documentos/${editandoId}`, {
+                    response = await fetch(
+                        `${API}/documentos/${editandoId}`,
+                        {
+                            method: "PUT",
 
-                        method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
 
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-
-                        body: JSON.stringify(body)
-
-                    });
+                            body: JSON.stringify(body)
+                        }
+                    );
 
                 } else {
 
-                    response = await fetch(`${API}/documentos`, {
+                    response = await fetch(
+                        `${API}/documentos`,
+                        {
+                            method: "POST",
 
-                        method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
 
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-
-                        body: JSON.stringify(body)
-
-                    });
-
+                            body: JSON.stringify(body)
+                        }
+                    );
                 }
 
-                const result = await response.json();
+                const result =
+                    await response.json();
 
                 if (!result.success) {
 
                     throw new Error(result.message);
-
                 }
 
                 mostrarToast("Registro salvo!");
@@ -1037,9 +1151,12 @@
             } finally {
 
                 mostrarLoading(false);
-
             }
         }
+
+        // =========================
+        // EDITAR
+        // =========================
 
         async function editarItem(id) {
 
@@ -1050,19 +1167,19 @@
                 const response =
                     await fetch(`${API}/documentos/${id}`);
 
-                const result = await response.json();
+                const result =
+                    await response.json();
 
                 if (!result.success) {
 
                     throw new Error(result.message);
-
                 }
-
-                const item = result.data;
 
                 abrirFormulario();
 
                 editandoId = id;
+
+                const item = result.data;
 
                 document.getElementById("pacienteId").value =
                     item.pacienteId?._id || "";
@@ -1073,7 +1190,8 @@
                 document.getElementById("status").value =
                     item.status || "Ativo";
 
-                document.getElementById("modalTitle").innerText =
+                document.getElementById("modalTitle")
+                    .innerText =
                     `Editar ${MODULOS[moduloAtual].nome}`;
 
             } catch (err) {
@@ -1085,9 +1203,12 @@
             } finally {
 
                 mostrarLoading(false);
-
             }
         }
+
+        // =========================
+        // EXCLUIR
+        // =========================
 
         async function excluirItem(id) {
 
@@ -1101,17 +1222,15 @@
 
                 const response =
                     await fetch(`${API}/documentos/${id}`, {
-
                         method: "DELETE"
-
                     });
 
-                const result = await response.json();
+                const result =
+                    await response.json();
 
                 if (!result.success) {
 
                     throw new Error(result.message);
-
                 }
 
                 mostrarToast("Registro removido!");
@@ -1127,37 +1246,46 @@
             } finally {
 
                 mostrarLoading(false);
-
             }
         }
 
+        // =========================
+        // FILTROS
+        // =========================
+
         function filtrarDados(busca = "") {
 
-            const termo = busca.toLowerCase();
+            const termo =
+                busca.toLowerCase();
 
             const statusFiltro =
                 document.getElementById("filtroStatus").value;
 
-            dadosFiltrados = dadosBackend.filter(row => {
+            dadosFiltrados =
+                dadosBackend.filter(row => {
 
-                const matchBusca =
-                    Object.values(row)
-                        .some(val =>
-                            String(val)
-                                .toLowerCase()
-                                .includes(termo)
-                        );
+                    const matchBusca =
+                        Object.values(row)
+                            .some(val =>
+                                String(val)
+                                    .toLowerCase()
+                                    .includes(termo)
+                            );
 
-                const matchStatus =
-                    !statusFiltro ||
-                    row.status.toLowerCase() ===
-                    statusFiltro.toLowerCase();
+                    const matchStatus =
+                        !statusFiltro ||
+                        row.status.toLowerCase() ===
+                        statusFiltro.toLowerCase();
 
-                return matchBusca && matchStatus;
-            });
+                    return matchBusca && matchStatus;
+                });
 
             renderizarTabela();
         }
+
+        // =========================
+        // UI
+        // =========================
 
         function fecharModal() {
 
@@ -1178,7 +1306,8 @@
             const toast =
                 document.getElementById("toast");
 
-            document.getElementById("toastMsg")
+            document
+                .getElementById("toastMsg")
                 .innerText = msg;
 
             toast.className =
