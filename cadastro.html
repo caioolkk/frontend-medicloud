@@ -499,6 +499,77 @@
                 flex-direction: column;
             }
         }
+
+        /* BOTÃO VOLTAR PREMIUM */
+
+        .btn-voltar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            padding: 12px 20px;
+
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+            color: white;
+
+            border: none;
+            border-radius: 14px;
+
+            font-size: 0.95rem;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 10px 25px rgba(37, 99, 235, 0.25),
+                0 4px 10px rgba(0, 0, 0, 0.08);
+
+            transition: all 0.25s ease;
+
+            z-index: 999;
+        }
+
+        .btn-voltar i {
+            font-size: 1rem;
+            transition: transform 0.25s ease;
+        }
+
+        .btn-voltar:hover {
+
+            transform: translateY(-3px) scale(1.02);
+
+            box-shadow:
+                0 16px 35px rgba(37, 99, 235, 0.35),
+                0 6px 14px rgba(0, 0, 0, 0.12);
+
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        }
+
+        .btn-voltar:hover i {
+            transform: translateX(-4px);
+        }
+
+        .btn-voltar:active {
+            transform: scale(0.97);
+        }
+
+        @media (max-width: 768px) {
+
+            .btn-voltar {
+
+                top: 12px;
+                left: 12px;
+
+                padding: 10px 16px;
+
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 
@@ -510,8 +581,10 @@
             <i class="fa-solid fa-cloud"></i>
             Medi CLOUD
         </div>
-        <div onclick="window.location.href='dashboard.html'" class="logout-btn">
-            <i class="fa-solid fa-right-from-bracket"></i> Voltar
+        <button class="btn-voltar" onclick="window.history.back()">
+            <i class="fa-solid fa-arrow-left"></i>
+            Voltar
+        </button>
     </header>
 
     <!-- Conteúdo Principal -->
