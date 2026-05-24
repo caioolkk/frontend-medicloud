@@ -618,59 +618,46 @@
         // ============ CONFIG ============
         const API_BASE = 'https://medicloud-backend-wy7s.onrender.com';
 
-        // ============ FUNÇÕES QUE O HTML CHAMA ============
+        // ============ FUNÇÕES GLOBAIS ============
 
-        // Esta é a função que o botão "Novo" está chamando!
         function abrirFormulario() {
-            console.log('🔘 abrirFormulario() chamado');
-
-            const modal = document.getElementById('modalNovoDocumento') ||
-                document.querySelector('.modal') ||
-                document.querySelector('[id*="modal"]') ||
-                document.querySelector('div[class*="modal"]');
-
+            console.log('🔘 Abrindo modal...');
+            const modal = document.querySelector('.modal') ||
+                document.getElementById('modalNovoDocumento') ||
+                document.querySelector('[id*="modal"]');
             if (modal) {
                 modal.style.display = 'flex';
-                console.log('✅ Modal aberto');
-                carregarPacientesNoSelect(); // Carrega pacientes no dropdown
+                carregarPacientesNoSelect();
             } else {
-                console.error('❌ Modal não encontrado!');
-                // Tenta criar alert se não achar modal
-                alert('Modal não encontrado. Verifique se o ID está correto.');
+                console.error('❌ Modal não encontrado');
             }
         }
 
         function fecharModal() {
-            const modal = document.getElementById('modalNovoDocumento') ||
-                document.querySelector('.modal');
+            const modal = document.querySelector('.modal') ||
+                document.getElementById('modalNovoDocumento');
             if (modal) {
                 modal.style.display = 'none';
-                const form = document.getElementById('formNovoDocumento') || document.querySelector('form');
+                const form = document.querySelector('form');
                 if (form) form.reset();
-                console.log('✅ Modal fechado');
             }
         }
 
-        // Função de filtro que o HTML chama
         function filtrarDados() {
-            console.log('🔍 filtrarDados() chamado');
+            console.log('🔍 Filtrando...');
             aplicarFiltros();
         }
 
-        // ============ CARREGAR PACIENTES NO SELECT ============
+        // ============ CARREGAR PACIENTES ============
         async function carregarPacientesNoSelect() {
             try {
-                console.log('📥 Carregando pacientes para o select...');
                 const res = await fetch(`${API_BASE}/api/pacientes`);
                 const { data, success } = await res.json();
-
                 const select = document.querySelector('select[name="pacienteId"]');
+
                 if (select && success && data) {
                     select.innerHTML = '<option value="">Selecione um paciente</option>' +
                         data.map(p => `<option value="${p._id}">${p.nome}</option>`).join('');
-                    console.log('✅ Pacientes carregados:', data.length);
-                } else if (!select) {
-                    console.warn('⚠️  Select pacienteId não encontrado');
                 }
             } catch (err) {
                 console.error('❌ Erro ao carregar pacientes:', err);
@@ -688,29 +675,20 @@
                 console.log('📥 GET:', url);
 
                 const res = await fetch(url);
-
-                // Verifica se é JSON ou HTML de erro
-                const contentType = res.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const text = await res.text();
-                    console.error('❌ Resposta não é JSON:', text.substring(0, 100));
-                    throw new Error('Servidor retornou HTML em vez de JSON. Status: ' + res.status);
-                }
-
                 const json = await res.json();
-                console.log('📦 API response:', json);
+                console.log('📦 Resposta:', json);
 
-                const tbody = document.querySelector('table tbody') ||
+                const container = document.querySelector('table tbody') ||
                     document.querySelector('[id*="lista"]') ||
                     document.querySelector('tbody');
 
-                if (!tbody) {
-                    console.error('❌ tbody não encontrado');
+                if (!container) {
+                    console.error('❌ Container não encontrado');
                     return;
                 }
 
                 if (!json.success || !json.data || json.data.length === 0) {
-                    tbody.innerHTML = `
+                    container.innerHTML = `
         <tr>
           <td colspan="5" style="text-align:center; padding:20px; color:#999;">
             Nenhum registro encontrado<br>
@@ -721,34 +699,32 @@
                     return;
                 }
 
-                tbody.innerHTML = json.data.map(doc => `
+                container.innerHTML = json.data.map(doc => `
       <tr>
         <td><strong>${doc.tipo || '-'}</strong></td>
         <td>${doc.pacienteId?.nome || 'Paciente não vinculado'}</td>
         <td>${new Date(doc.dataRegistro).toLocaleDateString('pt-BR')}</td>
         <td><span style="background:#e8f5e9; color:#2e7d32; padding:4px 8px; border-radius:4px; font-size:12px;">${doc.status || 'Ativo'}</span></td>
         <td>
-          <button onclick="editarDocumento('${doc._id}')" style="background:none; border:none; cursor:pointer; font-size:16px;">✏️</button>
-          <button onclick="excluirDocumento('${doc._id}')" style="background:none; border:none; cursor:pointer; font-size:16px; color:#d32f2f; margin-left:8px;">🗑️</button>
+          <button onclick="editarDocumento('${doc._id}')" style="background:none; border:none; cursor:pointer;">✏️</button>
         </td>
       </tr>
     `).join('');
 
             } catch (err) {
-                console.error('❌ Erro ao carregar documentos:', err);
-                alert('Erro ao carregar documentos: ' + err.message);
+                console.error('❌ Erro:', err);
+                alert('Erro ao carregar: ' + err.message);
             }
         }
 
         // ============ SALVAR DOCUMENTO ============
         async function salvarDocumento(e) {
             if (e) e.preventDefault();
-            console.log('💾 salvarDocumento() chamado');
+            console.log('💾 Salvando...');
 
-            // Coleta dados do form
             const dados = {
                 pacienteId: document.querySelector('select[name="pacienteId"]')?.value,
-                tipo: document.querySelector('select[name="tipo"]')?.value,
+                tipo: document.querySelector('select[name="tipo"]')?.value || 'Prontuário',
                 conteudo: document.querySelector('textarea[name="conteudo"]')?.value ||
                     document.querySelector('textarea')?.value || '',
                 status: document.querySelector('select[name="status"]')?.value || 'Ativo'
@@ -761,13 +737,7 @@
                 return;
             }
 
-            if (!dados.tipo) {
-                alert('⚠️ Selecione o tipo de documento!');
-                return;
-            }
-
             try {
-                console.log('📤 POST /api/documentos');
                 const res = await fetch(`${API_BASE}/api/documentos`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -777,16 +747,15 @@
                 const result = await res.json();
                 console.log('📥 Resposta:', result);
 
-                if (res.ok && result.success) {
+                if (result.success) {
                     alert('✅ Documento salvo!');
                     fecharModal();
                     carregarDocumentos();
                 } else {
-                    alert('❌ ' + (result.message || 'Erro ao salvar'));
+                    alert('❌ ' + result.message);
                 }
             } catch (err) {
-                console.error('❌ Erro de conexão:', err);
-                alert('❌ Erro de conexão: ' + err.message);
+                alert('❌ Erro: ' + err.message);
             }
         }
 
@@ -801,95 +770,61 @@
                 periodo: periodoSelect?.value || ''
             };
 
-            // Remove vazios
             Object.keys(filtros).forEach(k => filtros[k] === '' && delete filtros[k]);
-
-            console.log('🔍 Aplicando filtros:', filtros);
             carregarDocumentos(filtros);
         }
 
-        // ============ EDITAR / EXCLUIR ============
+        // ============ EDITAR/EXCLUIR ============
         async function editarDocumento(id) {
-            console.log('✏️ Editar documento:', id);
-            alert('Função de edição em desenvolvimento. ID: ' + id);
-        }
-
-        async function excluirDocumento(id) {
-            if (!confirm('Excluir este documento?')) return;
-
-            try {
-                const res = await fetch(`${API_BASE}/api/documentos/${id}`, { method: 'DELETE' });
-                const result = await res.json();
-
-                if (result.success) {
-                    alert('✅ Documento removido!');
-                    carregarDocumentos();
-                } else {
-                    alert('❌ ' + result.message);
-                }
-            } catch (err) {
-                alert('❌ Erro ao excluir');
-            }
+            alert('✏️ Editar: ' + id);
         }
 
         // ============ INICIALIZAÇÃO ============
         document.addEventListener('DOMContentLoaded', () => {
             console.log('✅ Documento.html carregado');
 
-            // Carrega lista inicial
             carregarDocumentos();
 
-            // Vincula selects de filtro
+            // Filtros
             document.querySelectorAll('select[name="statusFiltro"], select[name="status"], select[name="periodo"]').forEach(sel => {
-                sel.addEventListener('change', () => {
-                    console.log('🔄 Select mudou:', sel.name, sel.value);
-                    aplicarFiltros();
-                });
+                sel.addEventListener('change', aplicarFiltros);
             });
 
-            // Vincula formulário
-            const form = document.getElementById('formNovoDocumento') || document.querySelector('form');
+            // Formulário
+            const form = document.querySelector('form');
             if (form) {
                 form.addEventListener('submit', salvarDocumento);
-                console.log('📝 Form vinculado a salvarDocumento');
             }
 
-            // Botão "Novo" ou "+" - tenta vários seletores
+            // Botão Novo
             document.querySelectorAll('button, a').forEach(btn => {
-                const text = btn.textContent.toLowerCase();
-                if (text.includes('novo') || text.includes('+') || btn.id?.includes('novo')) {
+                if (btn.textContent.includes('Novo') || btn.textContent.includes('+')) {
                     btn.addEventListener('click', (e) => {
-                        console.log('🔘 Botão Novo clicado');
                         if (btn.tagName === 'A') e.preventDefault();
                         abrirFormulario();
                     });
                 }
             });
 
-            // Botão "Cancelar"
+            // Botão Cancelar
             document.querySelectorAll('button[type="button"]').forEach(btn => {
-                if (btn.textContent.toLowerCase().includes('cancelar')) {
+                if (btn.textContent.includes('Cancelar')) {
                     btn.addEventListener('click', fecharModal);
                 }
             });
 
             // Fechar modal ao clicar fora
             document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) fecharModal();
-                });
+                modal.addEventListener('click', (e) => { if (e.target === modal) fecharModal(); });
             });
         });
 
-        // Exportar funções globais (para onclick no HTML)
+        // Exportar funções
         window.abrirFormulario = abrirFormulario;
         window.fecharModal = fecharModal;
         window.filtrarDados = filtrarDados;
         window.carregarDocumentos = carregarDocumentos;
-        window.aplicarFiltros = aplicarFiltros;
-        window.salvarDocumento = salvarDocumento;
         window.editarDocumento = editarDocumento;
-        window.excluirDocumento = excluirDocumento;
     </script>
 </body>
 
